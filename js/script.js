@@ -1174,20 +1174,42 @@ document.addEventListener('DOMContentLoaded', () => {
                         try{
                             const words = document.getElementById('ws-words');
                             if (!words) return;
-                            // toggle revealed state (words list visible but initially obscured)
+                            const mobile = (window.innerWidth || document.documentElement.clientWidth) <= 900;
+                            if (mobile) {
+                                // open/close sheet on mobile
+                                const isOpen = words.classList.toggle('sheet');
+                                if (isOpen) {
+                                    words.classList.add('open');
+                                    document.body.classList.add('ws-sheet-open');
+                                    // ensure header exists
+                                    if (!words.querySelector('.sheet-header')){
+                                        const header = document.createElement('div'); header.className = 'sheet-header';
+                                        const title = document.createElement('div'); title.className='sheet-title'; title.textContent='Palavras';
+                                        const closeBtn = document.createElement('button'); closeBtn.className='game-button'; closeBtn.textContent='Fechar'; closeBtn.addEventListener('click', ()=>{ words.classList.remove('sheet'); words.classList.remove('open'); document.body.classList.remove('ws-sheet-open'); try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) { Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); } }catch(e){} });
+                                        header.appendChild(title); header.appendChild(closeBtn);
+                                        const handle = document.createElement('div'); handle.className='sheet-handle';
+                                        words.insertBefore(handle, words.firstChild);
+                                        words.insertBefore(header, handle.nextSibling);
+                                    }
+                                    // reveal words visually in sheet mode but keep found items visible
+                                    Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ it.classList.remove('obscured'); });
+                                } else {
+                                    words.classList.remove('open');
+                                    document.body.classList.remove('ws-sheet-open');
+                                    const hdr = words.querySelector('.sheet-header'); if(hdr) hdr.remove(); const h = words.querySelector('.sheet-handle'); if(h) h.remove();
+                                    try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) { Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); } }catch(e){}
+                                }
+                                btn.textContent = words.classList.contains('sheet') ? 'Ocultar palavras' : 'Mostrar palavras';
+                                return;
+                            }
+                            // desktop/tablet behavior: toggle revealed state (horizontal panel)
                             const isRevealed = words.classList.toggle('revealed');
-                            // when revealing, remove per-word obscured for smooth reveal; when hiding, re-add obscured to non-found words
                             try{
                                 const items = Array.from(words.querySelectorAll('.ws-word'));
-                                if (isRevealed) {
-                                    items.forEach(it => it.classList.remove('obscured'));
-                                } else {
-                                    items.forEach(it => { if (!it.classList.contains('found')) it.classList.add('obscured'); });
-                                }
+                                if (isRevealed) items.forEach(it => it.classList.remove('obscured'));
+                                else items.forEach(it => { if (!it.classList.contains('found')) it.classList.add('obscured'); });
                             }catch(e){}
-                            // defensive: ensure not hidden by older code paths
                             try{ words.classList.remove('hidden'); words.style.display = ''; }catch(e){}
-                            // persist preference (store true when list is revealed)
                             try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !!isRevealed; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!!isRevealed)); } }catch(e){}
                             btn.textContent = (isRevealed) ? 'Ocultar palavras' : 'Mostrar palavras';
                         }catch(e){}
@@ -1218,6 +1240,31 @@ document.addEventListener('DOMContentLoaded', () => {
                                 try{
                                     const words = document.getElementById('ws-words');
                                     if (!words) return;
+                                    const mobile = (window.innerWidth || document.documentElement.clientWidth) <= 900;
+                                    if (mobile) {
+                                        const isOpen = words.classList.toggle('sheet');
+                                        if (isOpen) {
+                                            words.classList.add('open');
+                                            document.body.classList.add('ws-sheet-open');
+                                            if (!words.querySelector('.sheet-header')){
+                                                const header = document.createElement('div'); header.className = 'sheet-header';
+                                                const title = document.createElement('div'); title.className='sheet-title'; title.textContent='Palavras';
+                                                const closeBtn = document.createElement('button'); closeBtn.className='game-button'; closeBtn.textContent='Fechar'; closeBtn.addEventListener('click', ()=>{ words.classList.remove('sheet'); words.classList.remove('open'); document.body.classList.remove('ws-sheet-open'); try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) { Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); } }catch(e){} });
+                                                header.appendChild(title); header.appendChild(closeBtn);
+                                                const handle = document.createElement('div'); handle.className='sheet-handle';
+                                                words.insertBefore(handle, words.firstChild);
+                                                words.insertBefore(header, handle.nextSibling);
+                                            }
+                                            Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ it.classList.remove('obscured'); });
+                                        } else {
+                                            words.classList.remove('open');
+                                            document.body.classList.remove('ws-sheet-open');
+                                            const hdr = words.querySelector('.sheet-header'); if(hdr) hdr.remove(); const h = words.querySelector('.sheet-handle'); if(h) h.remove();
+                                            try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) { Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); } }catch(e){}
+                                        }
+                                        existingToggle.textContent = words.classList.contains('sheet') ? 'Ocultar palavras' : 'Mostrar palavras';
+                                        return;
+                                    }
                                     const isRevealed = words.classList.toggle('revealed');
                                     try{
                                         const items = Array.from(words.querySelectorAll('.ws-word'));
@@ -1566,7 +1613,112 @@ document.addEventListener('DOMContentLoaded', () => {
             this.generateGrid();
             this.render();
         },
-        generateGrid() { const n = this.size; const grid = Array.from({length:n}, ()=>Array.from({length:n}, ()=>'')); const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]; function canPlace(w,r,c,dr,dc){ for(let i=0;i<w.length;i++){ const rr=r+dr*i, cc=c+dc*i; if(rr<0||rr>=n||cc<0||cc>=n) return false; const ch=grid[rr][cc]; if(ch&&ch!==w[i]) return false; } return true; } function place(w,r,c,dr,dc){ for(let i=0;i<w.length;i++){ grid[r+dr*i][c+dc*i]=w[i]; } } this.words.forEach(w=>{ let placed=false, attempts=0; while(!placed&&attempts<200){ attempts++; const dir=dirs[Math.floor(Math.random()*dirs.length)]; const r=Math.floor(Math.random()*n); const c=Math.floor(Math.random()*n); if(canPlace(w,r,c,dir[0],dir[1])){ place(w,r,c,dir[0],dir[1]); placed=true; } } }); const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; for(let i=0;i<n;i++) for(let j=0;j<n;j++) if(!grid[i][j]) grid[i][j]=letters[Math.floor(Math.random()*letters.length)]; this.grid = grid; },
+        generateGrid() {
+            const n = this.size;
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+
+            // helper to create empty grid and reserved map
+            const makeEmpty = () => ({ grid: Array.from({length:n}, ()=>Array.from({length:n}, ()=>'')), reserved: Array.from({length:n}, ()=>Array.from({length:n}, ()=>false)) });
+
+            // pool words set (all available words across pools) to detect accidental words
+            const poolSet = new Set(Object.keys(this.offlineDict || {}).map(k => String(k||'').toUpperCase()));
+            const chosenSet = new Set((this.words||[]).map(w=>String(w||'').toUpperCase()));
+            const maxPoolLen = Math.max(2, ...Array.from(poolSet).map(w=>w.length));
+
+            const canPlace = (grid, w, r, c, dr, dc) => { for(let i=0;i<w.length;i++){ const rr=r+dr*i, cc=c+dc*i; if(rr<0||rr>=n||cc<0||cc>=n) return false; const ch=grid[rr][cc]; if(ch&&ch!==w[i]) return false; } return true; };
+            const placeWord = (grid, reserved, w, r, c, dr, dc) => { for(let i=0;i<w.length;i++){ grid[r+dr*i][c+dc*i]=w[i]; reserved[r+dr*i][c+dc*i]=true; } };
+
+            let attempts = 0;
+            let final = null;
+            outer: while(attempts < 6){ // try full regenerations a few times if accidental words can't be fixed
+                attempts++;
+                const { grid, reserved } = makeEmpty();
+
+                // try placing chosen words randomly
+                this.words.forEach(w=>{
+                    const W = String(w||'').toUpperCase();
+                    let placed=false, tries=0;
+                    while(!placed && tries < 300){ tries++; const dir = dirs[Math.floor(Math.random()*dirs.length)]; const r = Math.floor(Math.random()*n); const c = Math.floor(Math.random()*n); if (canPlace(grid, W, r, c, dir[0], dir[1])) { placeWord(grid, reserved, W, r, c, dir[0], dir[1]); placed = true; } }
+                });
+
+                // fill empty cells with random letters
+                for(let i=0;i<n;i++) for(let j=0;j<n;j++) if(!grid[i][j]) grid[i][j]=letters[Math.floor(Math.random()*letters.length)];
+
+                // sanitize: scan for any pool words that are NOT in chosenSet and try to break them by changing a non-reserved letter
+                let changed = false;
+                let sanitizeTries = 0;
+                const flatPool = Array.from(poolSet);
+                while(sanitizeTries < 1000){
+                    sanitizeTries++;
+                    let foundExtraneous = false;
+                    for(let r=0;r<n && !foundExtraneous;r++){
+                        for(let c=0;c<n && !foundExtraneous;c++){
+                            for(const d of dirs){
+                                for(let L=2; L<=maxPoolLen; L++){
+                                    const rr = r + d[0]*(L-1), cc = c + d[1]*(L-1);
+                                    if(rr<0||rr>=n||cc<0||cc>=n) break;
+                                    // build word
+                                    let s = '';
+                                    for(let k=0;k<L;k++) s += grid[r + d[0]*k][c + d[1]*k];
+                                    if(!s) continue;
+                                    const W = String(s||'').toUpperCase();
+                                    if(poolSet.has(W) && !chosenSet.has(W)){
+                                        // extraneous occurrence
+                                        // try to find an index in this segment that is not reserved to change
+                                        const freeIdxs = [];
+                                        for(let k=0;k<L;k++){ if(!reserved[r + d[0]*k][c + d[1]*k]) freeIdxs.push(k); }
+                                        if(freeIdxs.length===0){
+                                            // cannot break this occurrence without touching placed words -> regenerate whole grid
+                                            foundExtraneous = true;
+                                            break;
+                                        }
+                                        // change one free index to a different random letter
+                                        const pick = freeIdxs[Math.floor(Math.random()*freeIdxs.length)];
+                                        const rr2 = r + d[0]*pick, cc2 = c + d[1]*pick;
+                                        const old = grid[rr2][cc2];
+                                        let newch = old;
+                                        let innerTries = 0;
+                                        while(newch === old && innerTries < 12){ newch = letters[Math.floor(Math.random()*letters.length)]; innerTries++; }
+                                        grid[rr2][cc2] = newch;
+                                        changed = true;
+                                        foundExtraneous = true;
+                                        break;
+                                    }
+                                }
+                                if(foundExtraneous) break;
+                            }
+                        }
+                    }
+                    if(!foundExtraneous) break; // no extraneous words found
+                }
+
+                if(changed){
+                    // after changes, do a final scan to ensure no extraneous remain
+                    let any=false;
+                    for(let r=0;r<n && !any;r++){
+                        for(let c=0;c<n && !any;c++){
+                            for(const d of dirs){
+                                for(let L=2; L<=maxPoolLen; L++){
+                                    const rr = r + d[0]*(L-1), cc = c + d[1]*(L-1);
+                                    if(rr<0||rr>=n||cc<0||cc>=n) break;
+                                    let s=''; for(let k=0;k<L;k++) s+=grid[r + d[0]*k][c + d[1]*k];
+                                    if(poolSet.has(s) && !chosenSet.has(s)){ any = true; break; }
+                                }
+                                if(any) break;
+                            }
+                        }
+                    }
+                    if(!any){ final = {grid, reserved}; break outer; }
+                } else {
+                    // no changes needed
+                    final = {grid, reserved}; break outer;
+                }
+                // if we reach here, regeneration loop will try again
+            }
+
+            if(final){ this.grid = final.grid; } else { this.grid = makeEmpty().grid; }
+        },
         render() {
             try{
                 const board = this.boardEl = this.boardEl || document.getElementById('ws-board');
@@ -1662,7 +1814,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 try{ if(!this.overlayEl) this.overlayEl = document.getElementById('ws-overlay'); }catch(e){}
             }catch(e){ console.error('[WordSearch] render error', e); }
         },
-        onPointerDown(e){ if(!e.target.classList.contains('ws-cell')) return; this.selecting=true; this.selected=[e.target]; e.target.classList.add('selected'); try{ this._boundBoardPointerMove = this._onBoardPointerMove.bind(this); this.boardEl.addEventListener('pointermove', this._boundBoardPointerMove); this._boundDocPointerUp = this._onDocumentPointerUp.bind(this); document.addEventListener('pointerup', this._boundDocPointerUp); document.addEventListener('pointercancel', this._boundDocPointerUp); }catch(err){} try{ if (!this.polyline && this.overlayEl) { const ns = 'http://www.w3.org/2000/svg'; const poly = document.createElementNS(ns, 'polyline'); poly.setAttribute('fill','none'); poly.setAttribute('stroke','rgba(0,204,153,0.85)'); poly.setAttribute('stroke-width','8'); poly.setAttribute('stroke-linecap','round'); poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('pointer-events','none'); poly.setAttribute('class','ws-polyline'); this.overlayEl.appendChild(poly); this.polyline = poly; } if (this.polyline) { this.points = []; this._addPointForCell(e.target); this._updatePolyline(); this.polyline.style.display = ''; } }catch(e){} },
+        onPointerDown(e){ if(!e.target.classList.contains('ws-cell')) return; this.selecting=true; this.selected=[e.target]; e.target.classList.add('selected'); try{ // try to capture pointer on the touched cell to improve move events
+                try{ if (e && e.pointerId && e.target && e.target.setPointerCapture) { e.target.setPointerCapture(e.pointerId); this._capturedPointerId = e.pointerId; this._capturedEl = e.target; } }catch(__){}
+                this._boundBoardPointerMove = this._onBoardPointerMove.bind(this); this.boardEl.addEventListener('pointermove', this._boundBoardPointerMove); this._boundDocPointerUp = this._onDocumentPointerUp.bind(this); document.addEventListener('pointerup', this._boundDocPointerUp); document.addEventListener('pointercancel', this._boundDocPointerUp);
+            }catch(err){} try{ if (!this.polyline && this.overlayEl) { const ns = 'http://www.w3.org/2000/svg'; const poly = document.createElementNS(ns, 'polyline'); poly.setAttribute('fill','none'); poly.setAttribute('stroke','rgba(0,204,153,0.85)'); poly.setAttribute('stroke-width','8'); poly.setAttribute('stroke-linecap','round'); poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('pointer-events','none'); poly.setAttribute('class','ws-polyline'); this.overlayEl.appendChild(poly); this.polyline = poly; } if (this.polyline) { this.points = []; this._addPointForCell(e.target); this._updatePolyline(); this.polyline.style.display = ''; } }catch(e){} },
         onPointerEnter(e){ if(this.selecting && e.target.classList.contains('ws-cell') && !this.selected.includes(e.target)){ this.selected.push(e.target); e.target.classList.add('selected'); if (this.polyline) { this._addPointForCell(e.target); this._updatePolyline(); } } },
         onPointerUp(e){
         if(!this.selecting) return;
@@ -1729,8 +1884,30 @@ document.addEventListener('DOMContentLoaded', () => {
     },
         _addPointForCell(cell){ try{ const rect = cell.getBoundingClientRect(); const boardRect = this.boardEl.getBoundingClientRect(); const cx = rect.left - boardRect.left + rect.width/2; const cy = rect.top - boardRect.top + rect.height/2; this.points = this.points || []; const last = this.points.length? this.points[this.points.length-1]: null; if (!last || Math.hypot(last.x-cx, last.y-cy) > 4) this.points.push({x:cx,y:cy}); }catch(e){} },
         _updatePolyline(){ if (!this.polyline) return; const pts = (this.points||[]).map(p=>`${p.x},${p.y}`).join(' '); this.polyline.setAttribute('points', pts); try{ this.polyline.removeAttribute('stroke-dasharray'); this.polyline.removeAttribute('stroke-dashoffset'); }catch(e){} },
-        _onBoardPointerMove(e){ try{ const els = document.elementsFromPoint ? document.elementsFromPoint(e.clientX, e.clientY) : [document.elementFromPoint(e.clientX, e.clientY)]; if (!els || !els.length) return; let el = null; for (let i=0;i<els.length;i++){ if (els[i] && els[i].classList && els[i].classList.contains('ws-cell')) { el = els[i]; break; } } if (!el) return; if (!this.selected.includes(el)){ this.selected.push(el); el.classList.add('selected'); if (this.polyline) { this._addPointForCell(el); this._updatePolyline(); } } }catch(err){} },
-        _onDocumentPointerUp(e){ try{ this.onPointerUp(e); }catch(err){} },
+        _onBoardPointerMove(e){ try{ const els = document.elementsFromPoint ? document.elementsFromPoint(e.clientX, e.clientY) : [document.elementFromPoint(e.clientX, e.clientY)]; if (!els || !els.length) {
+                    // try a few nearby points to tolerate finger imprecision
+                    const probes = [[-12,0],[12,0],[0,-12],[0,12],[-8,-8],[8,8],[-8,8],[8,-8]];
+                    let found=null;
+                    for (let p=0;p<probes.length && !found;p++){ try{ const dx=probes[p][0], dy=probes[p][1]; const els2 = document.elementsFromPoint ? document.elementsFromPoint(e.clientX+dx, e.clientY+dy) : [document.elementFromPoint(e.clientX+dx, e.clientY+dy)]; if (!els2 || !els2.length) continue; for (let j=0;j<els2.length;j++){ if (els2[j] && els2[j].classList && els2[j].classList.contains('ws-cell')) { found = els2[j]; break; } } }catch(__){} }
+                    if (!found) return; var el = found;
+                } else {
+                    let el = null; for (let i=0;i<els.length;i++){ if (els[i] && els[i].classList && els[i].classList.contains('ws-cell')) { el = els[i]; break; } }
+                    if (!el) {
+                        // fallback: try nearby probes
+                        const probes = [[-12,0],[12,0],[0,-12],[0,12],[-8,-8],[8,8],[-8,8],[8,-8]];
+                        for (let p=0;p<probes.length;p++){ try{ const dx=probes[p][0], dy=probes[p][1]; const els2 = document.elementsFromPoint ? document.elementsFromPoint(e.clientX+dx, e.clientY+dy) : [document.elementFromPoint(e.clientX+dx, e.clientY+dy)]; if (!els2 || !els2.length) continue; for (let j=0;j<els2.length;j++){ if (els2[j] && els2[j].classList && els2[j].classList.contains('ws-cell')) { el = els2[j]; break; } } }catch(__){} if (el) break; }
+                        if (!el) return;
+                    }
+                    if (!this.selected.includes(el)){ this.selected.push(el); el.classList.add('selected'); if (this.polyline) { this._addPointForCell(el); this._updatePolyline(); } }
+                    return;
+                }
+                // if we got a 'found' from probes above
+                try{ if (found && !this.selected.includes(found)) { this.selected.push(found); found.classList.add('selected'); if (this.polyline) { this._addPointForCell(found); this._updatePolyline(); } } }catch(err){}
+            }catch(err){} },
+        _onDocumentPointerUp(e){ try{ this.onPointerUp(e); }catch(err){} try{ // release pointer capture if we set one
+                try{ if (this._capturedEl && this._capturedPointerId && this._capturedEl.releasePointerCapture) { this._capturedEl.releasePointerCapture(this._capturedPointerId); } }catch(__){}
+                this._capturedEl = null; this._capturedPointerId = null;
+            }catch(__){} },
         async _fetchDefinition(word){ if (!word) return null; const key = String(word).toUpperCase(); if (this.definitionCache.hasOwnProperty(key)) return this.definitionCache[key]; try{ const w = String(word || '').trim(); const isLookupable = (/^[\p{L}]{3,22}$/u).test(w); if (!isLookupable) { this.definitionCache[key] = null; return null; } return new Promise((resolve) => { this.fetchQueue.push({ word: w, resolve }); this._processFetchQueue(); }); }catch(err){ this.definitionCache[key] = null; return null; } },
         async _processFetchQueue(){ if (this.activeFetches >= this.maxConcurrent || this.fetchQueue.length === 0) return; this.activeFetches++; const { word, resolve } = this.fetchQueue.shift(); const key = word.toUpperCase(); try{ let result = null; const apiPt = `https://api.dictionaryapi.dev/api/v2/entries/pt/${encodeURIComponent(word.toLowerCase())}`; let resp = await fetch(apiPt); if (resp && resp.ok) { const data = await resp.json(); if (Array.isArray(data) && data.length>0) { const meanings = data[0].meanings || []; if (meanings.length>0) { const defs = []; for (const m of meanings) { if (m.definitions && m.definitions.length>0) defs.push(m.definitions.map(d=>d.definition).join('; ')); } if (defs.length) result = defs.join('\n'); } } } if (!result) { const apiEn = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word.toLowerCase())}`; resp = await fetch(apiEn); if (resp && resp.ok) { const data = await resp.json(); if (Array.isArray(data) && data.length>0) { const meanings = data[0].meanings || []; if (meanings.length>0) result = meanings[0].definitions.map(d=>d.definition).join('; '); } } } if (!result) { try{ const wikiPt = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`; let wresp = await fetch(wikiPt); if (wresp && wresp.ok) { const wdata = await wresp.json(); if (wdata && wdata.extract) result = wdata.extract; } }catch(e){} } if (!result) { try{ const wikiEn = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`; let wresp2 = await fetch(wikiEn); if (wresp2 && wresp2.ok) { const wdata2 = await wresp2.json(); if (wdata2 && wdata2.extract) result = wdata2.extract; } }catch(e){} } this.definitionCache[key] = result; resolve(result); }catch(err){ this.definitionCache[key] = null; resolve(null); }finally{ this.activeFetches--; setTimeout(() => this._processFetchQueue(), 10); } }
     };
