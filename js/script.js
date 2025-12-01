@@ -642,12 +642,15 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(bindMiniEvents, 10);
             setTimeout(bindMiniEvents, 300);
 
-                        # .gitignore (crie no editor)
-            node_modules/
-            .vscode/
-            *.logif(memConfigBtn) memConfigBtn.addEventListener('click', (ev)=> showMini('memory','both', ev.currentTarget));
-            if(wsLevelBtn) wsLevelBtn.addEventListener('click', (ev)=> showMini('ws','level', ev.currentTarget));
-            if(wsThemeBtn) wsThemeBtn.addEventListener('click', (ev)=> showMini('ws','theme', ev.currentTarget));
+            if (memConfigBtn) {
+                memConfigBtn.addEventListener('click', (ev) => showMini('memory', 'both', ev.currentTarget));
+            }
+            if (wsLevelBtn) {
+                wsLevelBtn.addEventListener('click', (ev) => showMini('ws', 'level', ev.currentTarget));
+            }
+            if (wsThemeBtn) {
+                wsThemeBtn.addEventListener('click', (ev) => showMini('ws', 'theme', ev.currentTarget));
+            }
 
             const cfgExport = document.getElementById('cfg-export-theme');
             const cfgImport = document.getElementById('cfg-import-theme');
