@@ -1,0 +1,11 @@
+# Editor / OS
+.vscode/
+*.log
+.DS_Store
+
+# Node / dependencies (se aplicar)
+node_modules/
+
+# Build / temp
+dist/
+build/
