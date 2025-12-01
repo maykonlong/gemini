@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Jogos de Memória e Lógica</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Hub Screen -->
+        <div id="hub-screen">
+            <h1>Hub de Jogos</h1>
+            <div id="game-grid">
+                <div class="game-card" data-game="memory">
+                    <h3>Jogo da Memória</h3>
+                    <p>Encontre os pares de emojis.</p>
+                </div>
+                <div class="game-card" data-game="wordsearch">
+                    <h3>Caça-Palavras</h3>
+                    <p>Encontre as palavras escondidas.</p>
+                </div>
+                <div class="game-card" data-game="2048">
+                    <h3>2048</h3>
+                    <p>Combine os números para chegar a 2048.</p>
+                </div>
+                <div class="game-card" data-game="sudoku">
+                    <h3>Sudoku</h3>
+                    <p>Preencha o tabuleiro 9x9.</p>
+                </div>
+                <div class="game-card" data-game="hangman">
+                    <h3>Forca</h3>
+                    <p>Adivinhe a palavra secreta.</p>
+                </div>
+                <div class="game-card disabled" data-game="chess">
+                    <h3>Xadrez</h3>
+                    <p>Em breve...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Memory Game Screen -->
+        <div id="memory-game-screen" class="game-screen hidden">
+            <div id="memory-game-controls" class="game-controls">
+                <div class="controls-left">
+                    <button id="back-to-hub" class="game-button icon-btn" aria-label="Voltar">←</button>
+                    <button id="mem-config-btn" class="per-game-settings-btn icon-btn" aria-label="Abrir configurações da Memória" style="display:none">☰</button>
+                </div>
+                <div class="controls-center">
+                    <div class="control-group theme-control">
+                        <label for="theme-select" class="sr-only">Tema</label>
+                        <select id="theme-select" aria-label="Selecionar tema"></select>
+                    </div>
+                </div>
+                <div class="controls-right">
+                    <div class="control-group level-control">
+                        <label for="level-select" class="sr-only">Nível</label>
+                        <select id="level-select" aria-label="Selecionar nível">
+                            <option value="4">Fácil (4 pares)</option>
+                            <option value="6">Intermediário (6 pares)</option>
+                            <option value="8" selected>Normal (8 pares)</option>
+                            <option value="10">Difícil (10 pares)</option>
+                            <option value="14">Muito Difícil (14 pares)</option>
+                            <option value="16">Extremo (16 pares)</option>
+                        </select>
+                    </div>
+                    <div class="control-group size-control">
+                        <label for="card-size-select" class="sr-only">Tamanho</label>
+                        <select id="card-size-select" aria-label="Tamanho das cartas">
+                            <option value="compact">Compacto</option>
+                            <option value="standard" selected>Padrão</option>
+                            <option value="large">Grande</option>
+                        </select>
+                        <span id="card-size-preview" class="card-preview">—</span>
+                    </div>
+                    <button id="restart-memory-game" class="game-button action-btn">Reiniciar</button>
+                </div>
+            </div>
+            <!-- Mini-config popup used by mobile compact menu (built dynamically by JS) -->
+            <div id="mini-config-popup" class="mini-config hidden" aria-hidden="true">
+                <div class="mini-header" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px;">
+                    <div id="mini-title" style="font-weight:700; color:var(--primary-color);">Configurar</div>
+                    <button id="mini-close" class="game-button icon-btn" aria-label="Fechar">✕</button>
+                </div>
+                <div id="mini-body" class="mini-body" style="padding:8px 10px;"></div>
+                <div class="mini-actions" style="display:flex; gap:8px; justify-content:flex-end; padding:8px 10px;">
+                    <button id="mini-cancel" class="game-button">Cancelar</button>
+                    <button id="mini-apply" class="game-button action-btn">Aplicar</button>
+                </div>
+            </div>
+            <div id="memory-game-stats">
+                <div id="memory-theme-display" class="theme-display" aria-hidden="true">
+                    <div class="theme-emoji">🧸</div>
+                    <div class="theme-name">Tema</div>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">🧭</span>
+                    <div class="stat-label">Movimentos <span id="moves">0</span></div>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">⏱️</span>
+                    <div class="stat-label">Tempo <span id="time">0</span>s</div>
+                </div>
+                <button id="restart-memory-game-top" class="game-button top-restart" aria-label="Reiniciar jogo">⟳</button>
+            </div>
+            <div id="memory-game-board"></div>
+        </div>
+        
+        <!-- WordSearch Screen -->
+        <div id="wordsearch-screen" class="game-screen hidden">
+             <div class="game-controls">
+                 <button id="back-to-hub-ws" class="game-button">← Voltar</button>
+                 <h2>Caça-Palavras</h2>
+                 <button id="new-ws" class="game-button">Novo Jogo</button>
+            </div>
+             <div class="game-controls">
+                <select id="ws-theme-select" aria-label="Tema"></select>
+                <select id="ws-level-select" aria-label="Nível"></select>
+                <button id="import-ws-list" class="game-button">Importar</button>
+                <input type="file" id="import-ws-file" style="display:none;" accept=".json">
+            </div>
+            <div id="ws-board-container" style="position: relative;">
+                <div id="ws-board" style="display: grid;"></div>
+                <svg id="ws-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+            </div>
+            <div id="ws-words"></div>
+        </div>
+
+        <!-- 2048 Screen -->
+        <div id="game2048-screen" class="game-screen hidden">
+             <div class="game-controls">
+                 <button id="back-to-hub-2048" class="game-button">← Voltar</button>
+                 <h2>2048 | Pontos: <span id="score-2048">0</span></h2>
+                 <button id="restart-2048" class="game-button">Reiniciar</button>
+            </div>
+            <div id="g2048-board" style="display: grid;"></div>
+        </div>
+        
+        <!-- Sudoku Screen -->
+        <div id="sudoku-screen" class="game-screen hidden">
+             <div class="game-controls">
+                 <button id="back-to-hub-sd" class="game-button">← Voltar</button>
+                 <h2>Sudoku</h2>
+                 <button id="new-sudoku" class="game-button">Novo</button>
+            </div>
+            <div id="sudoku-board" style="display: grid; grid-template-columns: repeat(9, 1fr);"></div>
+        </div>
+
+        <!-- Hangman Screen -->
+        <div id="hangman-screen" class="game-screen hidden">
+            <div class="game-controls">
+                <button id="back-to-hub-hm" class="game-button">← Voltar</button>
+                <h2>Jogo da Forca</h2>
+                <button id="new-hangman" class="game-button">Nova Palavra</button>
+            </div>
+            <div id="hangman-area">
+                <p id="hm-word" class="hm-word"></p>
+                <p id="hm-message"></p>
+                <p>Erros: <span id="hm-mistakes">0</span> / <span id="hm-max">6</span></p>
+                <div id="hm-keyboard"></div>
+            </div>
+        </div>
+
+        <!-- Settings Modal (simplified, JS will populate) -->
+        <div id="settings-modal" style="display: none;" aria-hidden="true">
+            <div class="settings-content">
+                <p>Configurações</p>
+                <button id="cfg-close">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+    
+    <script src="js/script.js" defer></script>
+</body>
+</html>
