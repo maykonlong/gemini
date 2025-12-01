@@ -1174,10 +1174,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         try{
                             const words = document.getElementById('ws-words');
                             if (!words) return;
-                            const isHidden = words.classList.toggle('hidden');
-                            // persist preference (store true when list is visible)
-                            try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !isHidden; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!isHidden)); } }catch(e){}
-                            btn.textContent = (!isHidden) ? 'Ocultar palavras' : 'Mostrar palavras';
+                            // toggle revealed state (words list visible but initially obscured)
+                            const isRevealed = words.classList.toggle('revealed');
+                            // when revealing, remove per-word obscured for smooth reveal; when hiding, re-add obscured to non-found words
+                            try{
+                                const items = Array.from(words.querySelectorAll('.ws-word'));
+                                if (isRevealed) {
+                                    items.forEach(it => it.classList.remove('obscured'));
+                                } else {
+                                    items.forEach(it => { if (!it.classList.contains('found')) it.classList.add('obscured'); });
+                                }
+                            }catch(e){}
+                            // defensive: ensure not hidden by older code paths
+                            try{ words.classList.remove('hidden'); words.style.display = ''; }catch(e){}
+                            // persist preference (store true when list is revealed)
+                            try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !!isRevealed; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!!isRevealed)); } }catch(e){}
+                            btn.textContent = (isRevealed) ? 'Ocultar palavras' : 'Mostrar palavras';
                         }catch(e){}
                     });
                     return btn;
@@ -1198,15 +1210,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     try{
                         const s = !!(window.Settings && window.Settings.data && window.Settings.data.wsShowWords);
                         existingToggle.textContent = s ? 'Ocultar palavras' : 'Mostrar palavras';
+                        // ensure container reflects persisted revealed state
+                        try{ const words = document.getElementById('ws-words'); if(words){ if(s) { words.classList.add('revealed'); try{ Array.from(words.querySelectorAll('.ws-word')).forEach(it=>it.classList.remove('obscured')); }catch(e){} } else { words.classList.remove('revealed'); try{ Array.from(words.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); }catch(e){} } } }catch(e){}
                         // attach handler once (avoid duplicates)
                         if (!existingToggle.dataset.wsHandlerAttached) {
                             existingToggle.addEventListener('click', ()=>{
                                 try{
                                     const words = document.getElementById('ws-words');
                                     if (!words) return;
-                                    const isHidden = words.classList.toggle('hidden');
-                                    try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !isHidden; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!isHidden)); } }catch(e){}
-                                    existingToggle.textContent = (!isHidden) ? 'Ocultar palavras' : 'Mostrar palavras';
+                                    const isRevealed = words.classList.toggle('revealed');
+                                    try{
+                                        const items = Array.from(words.querySelectorAll('.ws-word'));
+                                        if (isRevealed) items.forEach(it=>it.classList.remove('obscured'));
+                                        else items.forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); });
+                                    }catch(e){}
+                                    try{ words.classList.remove('hidden'); words.style.display = ''; }catch(e){}
+                                    try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !!isRevealed; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!!isRevealed)); } }catch(e){}
+                                    existingToggle.textContent = (isRevealed) ? 'Ocultar palavras' : 'Mostrar palavras';
                                 }catch(e){}
                             });
                             existingToggle.dataset.wsHandlerAttached = '1';
@@ -1247,6 +1267,122 @@ document.addEventListener('DOMContentLoaded', () => {
                     fr.readAsText(f);
                 });
             }
+
+            // Mobile mini-menu: move controls into a floating panel when opened
+            try{
+                const miniBtn = document.getElementById('ws-mini-menu-btn');
+                const miniPanel = document.getElementById('ws-mini-panel');
+                const controlRight = document.querySelector('#wordsearch-screen .controls-right');
+                if (miniBtn && miniPanel) {
+                    miniBtn.addEventListener('click', ()=>{
+                        try{
+                            const open = miniPanel.classList.toggle('open');
+                            if (open) {
+                                // move a few controls into the panel in order
+                                const ids = ['ws-theme-select','ws-level-select','import-ws-list','ws-toggle-words','new-ws'];
+                                // create a container row
+                                miniPanel.innerHTML = '';
+                                const row = document.createElement('div'); row.className = 'panel-row';
+                                ids.forEach(id=>{
+                                    try{ const el = document.getElementById(id); if(el) row.appendChild(el); }catch(e){}
+                                });
+                                miniPanel.appendChild(row);
+                                // add a small close row
+                                const closeRow = document.createElement('div'); closeRow.className = 'panel-row';
+                                const closeBtn = document.createElement('button'); closeBtn.className='game-button'; closeBtn.textContent='Fechar'; closeBtn.addEventListener('click', ()=>{ try{ miniBtn.click(); }catch(e){} });
+                                closeRow.appendChild(closeBtn);
+                                miniPanel.appendChild(closeRow);
+                                try{ miniPanel.setAttribute('aria-hidden','false'); }catch(e){}
+                            } else {
+                                // move controls back to the right area
+                                try{
+                                    const ids = ['ws-theme-select','ws-level-select','import-ws-list','ws-toggle-words','new-ws'];
+                                    ids.forEach(id=>{ try{ const el = document.getElementById(id); if(el && controlRight) controlRight.appendChild(el); }catch(e){} });
+                                }catch(e){}
+                                miniPanel.classList.remove('open');
+                                miniPanel.innerHTML = '';
+                                try{ miniPanel.setAttribute('aria-hidden','true'); }catch(e){}
+                            }
+                        }catch(e){}
+                    });
+                }
+            }catch(e){}
+
+            // Floating FAB for word list: toggle a floating panel anchored to the FAB
+            try{
+                const fab = document.getElementById('ws-words-fab');
+                const wordsContainer = document.getElementById('ws-words');
+                if (fab && wordsContainer) {
+                    // ensure badge element inside FAB for count
+                    let badge = fab.querySelector('.fab-badge');
+                    if(!badge){ badge = document.createElement('span'); badge.className = 'fab-badge'; badge.style.position = 'absolute'; badge.style.top = '6px'; badge.style.right = '8px'; badge.style.minWidth = '18px'; badge.style.height = '18px'; badge.style.lineHeight = '18px'; badge.style.padding = '0 6px'; badge.style.borderRadius = '999px'; badge.style.fontSize = '0.72rem'; badge.style.background = 'var(--primary-color)'; badge.style.color = '#012'; badge.style.fontWeight = '700'; badge.style.display = 'none'; badge.style.alignItems = 'center'; badge.style.justifyContent = 'center'; badge.style.textAlign = 'center'; badge.style.pointerEvents = 'none'; fab.style.position='fixed'; fab.appendChild(badge); }
+
+                    function updateBadge(){ try{ const count = (wordsContainer && wordsContainer.querySelectorAll) ? wordsContainer.querySelectorAll('.ws-word').length : 0; if(count>0){ badge.textContent = String(count); badge.style.display = 'inline-flex'; } else { badge.style.display = 'none'; } }catch(e){} }
+                    updateBadge();
+
+                    // Toggle panel open/close
+                    fab.addEventListener('click', (ev)=>{
+                        try{
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            const mobile = (window.innerWidth || document.documentElement.clientWidth) <= 900;
+                            // On small screens open as a bottom-sheet (sheet mode). On larger screens use floating panel.
+                            if (mobile) {
+                                const isOpen = wordsContainer.classList.toggle('sheet');
+                                if (isOpen) {
+                                    // add sheet helpers
+                                    wordsContainer.classList.add('open');
+                                    document.body.classList.add('ws-sheet-open');
+                                    // add header if not present
+                                    if (!wordsContainer.querySelector('.sheet-header')) {
+                                        const header = document.createElement('div'); header.className = 'sheet-header';
+                                        const title = document.createElement('div'); title.className='sheet-title'; title.textContent = 'Palavras';
+                                        const closeBtn = document.createElement('button'); closeBtn.className='game-button'; closeBtn.textContent='Fechar'; closeBtn.addEventListener('click', ()=>{ wordsContainer.classList.remove('sheet'); wordsContainer.classList.remove('open'); document.body.classList.remove('ws-sheet-open'); });
+                                        header.appendChild(title);
+                                        header.appendChild(closeBtn);
+                                        wordsContainer.insertBefore(header, wordsContainer.firstChild);
+                                        const handle = document.createElement('div'); handle.className='sheet-handle'; wordsContainer.insertBefore(handle, header);
+                                    }
+                                    // reveal words visually in sheet mode but keep found items visible
+                                    Array.from(wordsContainer.querySelectorAll('.ws-word')).forEach(it=>{ it.classList.remove('obscured'); });
+                                } else {
+                                    wordsContainer.classList.remove('open');
+                                    document.body.classList.remove('ws-sheet-open');
+                                    // remove header and handle if present
+                                    const hdr = wordsContainer.querySelector('.sheet-header'); if(hdr) hdr.remove(); const h = wordsContainer.querySelector('.sheet-handle'); if(h) h.remove();
+                                    // reapply persisted preference
+                                    try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) { Array.from(wordsContainer.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); } }catch(e){}
+                                }
+                            } else {
+                                const isOpen = wordsContainer.classList.toggle('fab-panel');
+                                if(isOpen){ wordsContainer.classList.add('open'); wordsContainer.classList.remove('hidden'); }
+                                else { wordsContainer.classList.remove('open'); }
+                                // if not open in fab mode, keep existing revealed state off unless persisted
+                                if (!wordsContainer.classList.contains('fab-panel')) {
+                                    // apply persisted preference
+                                    try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) { Array.from(wordsContainer.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); } }catch(e){}
+                                }
+                            }
+                        }catch(e){}
+                    });
+
+                    // close the panel when tapping outside
+                    document.addEventListener('click', (ev)=>{
+                        try{
+                            if (!wordsContainer.classList.contains('fab-panel')) return;
+                            const path = ev.composedPath ? ev.composedPath() : (ev.path || []);
+                            if (path && (path.indexOf(wordsContainer) !== -1 || path.indexOf(fab) !== -1)) return;
+                            wordsContainer.classList.remove('fab-panel'); wordsContainer.classList.remove('open');
+                        }catch(e){}
+                    }, {capture:true});
+
+                    // keep badge updated when word list changes (mutation observer)
+                    try{
+                        const mo = new MutationObserver(()=>{ updateBadge(); });
+                        mo.observe(wordsContainer, { childList:true, subtree:true, characterData:false });
+                    }catch(e){}
+                }
+            }catch(e){}
             this.init();
         },
         stop() {},
@@ -1462,32 +1598,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 board.addEventListener('pointerdown', this._boundBoardPointerDown);
 
                 // render word list
-                if (wordsContainer){
-                    wordsContainer.innerHTML = '';
-                    this.words.forEach(w => {
-                        const el = document.createElement('div');
-                        el.className = 'ws-word';
-                        el.dataset.word = w;
-                        el.textContent = w;
-                        el.style.padding = '6px 4px';
-                        el.style.margin = '4px';
-                        el.style.display = 'inline-block';
-                        el.style.borderRadius = '6px';
-                        el.style.background = 'transparent';
-                        el.style.border = '1px solid rgba(255,255,255,0.04)';
-                        el.style.fontWeight = '600';
-                        // clicking a word toggles a hint/highlight
-                        el.addEventListener('click', ()=>{ try{ el.classList.toggle('found'); }catch(e){} });
-                        wordsContainer.appendChild(el);
-                    });
-                    // apply persisted visibility preference: default hidden unless user enabled
-                    try{
-                        const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false'));
-                        if (!pref) wordsContainer.classList.add('hidden'); else wordsContainer.classList.remove('hidden');
-                        // update toggle button text if present
-                        try{ const tbtn = document.getElementById('ws-toggle-words'); if(tbtn) tbtn.textContent = pref ? 'Ocultar palavras' : 'Mostrar palavras'; }catch(e){}
-                    }catch(e){}
-                }
+                        if (wordsContainer){
+                            wordsContainer.innerHTML = '';
+                            // create an inner scroll row so we can control horizontal scrolling independently
+                            const row = document.createElement('div');
+                            row.className = 'ws-row';
+                            this.words.forEach(w => {
+                                const el = document.createElement('div');
+                                el.className = 'ws-word';
+                                el.dataset.word = w;
+                                el.textContent = w;
+                                el.style.padding = '6px 10px';
+                                el.style.margin = '0';
+                                el.style.display = 'inline-flex';
+                                el.style.borderRadius = '6px';
+                                el.style.background = 'transparent';
+                                el.style.border = '1px solid rgba(255,255,255,0.04)';
+                                el.style.fontWeight = '600';
+                                el.style.whiteSpace = 'nowrap';
+                                el.style.overflow = 'hidden';
+                                el.style.textOverflow = 'ellipsis';
+                                // clicking a word toggles a hint/highlight
+                                el.addEventListener('click', ()=>{ try{ const now = el.classList.toggle('found'); if(now){ el.classList.remove('obscured'); } else { const container = document.getElementById('ws-words'); if(container && !container.classList.contains('revealed') && !container.classList.contains('sheet')) el.classList.add('obscured'); } }catch(e){} });
+                                // obscure words by default unless user preference requests showing them
+                                try{ const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false')); if (!pref) el.classList.add('obscured'); }catch(e){}
+                                row.appendChild(el);
+                            });
+                            wordsContainer.appendChild(row);
+
+                            // helper to update whether the inner row is scrollable (adds class to container)
+                            const updateScrollable = () => {
+                                try{
+                                    const r = wordsContainer.querySelector('.ws-row');
+                                    if (!r) { wordsContainer.classList.remove('scrollable'); return; }
+                                    // small tolerance for rounding
+                                    const isScrollable = r.scrollWidth > (r.clientWidth + 2);
+                                    if (isScrollable) wordsContainer.classList.add('scrollable'); else wordsContainer.classList.remove('scrollable');
+                                }catch(e){}
+                            };
+
+                            // set up mutation observer and resize handler once
+                            try{
+                                if (!this._wordsMO) {
+                                    this._wordsMO = new MutationObserver(()=>{ updateScrollable(); });
+                                    this._wordsMO.observe(wordsContainer, { childList:true, subtree:true });
+                                    window.addEventListener('resize', ()=>{ try{ updateScrollable(); }catch(e){} });
+                                }
+                            }catch(e){}
+
+                            // apply persisted visibility preference: default NOT revealed (words obscured) unless user enabled
+                            try{
+                                const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false'));
+                                if (pref) { wordsContainer.classList.add('revealed'); try{ Array.from(wordsContainer.querySelectorAll('.ws-word')).forEach(it=>it.classList.remove('obscured')); }catch(e){} } else { wordsContainer.classList.remove('revealed'); try{ Array.from(wordsContainer.querySelectorAll('.ws-word')).forEach(it=>{ if(!it.classList.contains('found')) it.classList.add('obscured'); }); }catch(e){} }
+                                try{ wordsContainer.classList.remove('hidden'); wordsContainer.style.display = ''; }catch(e){}
+                                // update toggle button text if present
+                                try{ const tbtn = document.getElementById('ws-toggle-words'); if(tbtn) tbtn.textContent = pref ? 'Ocultar palavras' : 'Mostrar palavras'; }catch(e){}
+                            }catch(e){}
+
+                            // run initial scrollable detection
+                            try{ updateScrollable(); }catch(e){}
+                        }
                 // ensure overlayEl exists
                 try{ if(!this.overlayEl) this.overlayEl = document.getElementById('ws-overlay'); }catch(e){}
             }catch(e){ console.error('[WordSearch] render error', e); }
@@ -1501,12 +1671,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const rev = word.split('').reverse().join('');
         const found = this.words.find(w=>w===word||w===rev);
 
-        if(found){
+            if(found){
             this.selected.forEach(s=>{ s.classList.remove('selected'); s.classList.add('found'); });
-            const list = Array.from(this.wordsEl.children).find(x=> x.dataset && x.dataset.word === found);
+            const list = this.wordsEl ? Array.from(this.wordsEl.querySelectorAll('.ws-word')).find(x=> x.dataset && x.dataset.word === found) : null;
             if(list) {
                 list.style.textDecoration = 'line-through';
                 list.classList.add('found');
+                try{ list.classList.remove('obscured'); }catch(e){}
                 list.dataset.showing = 'name';
                 list.textContent = found;
             }
@@ -1526,9 +1697,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch(e) {}
                 }, 600);
             // after marking a found word, check for victory
-            try{
+                try{
                 const total = this.words ? this.words.length : 0;
-                const foundCount = this.wordsEl ? Array.from(this.wordsEl.children).filter(x=> x.classList && x.classList.contains('found')).length : 0;
+                const foundCount = (this.wordsEl) ? (this.wordsEl.querySelectorAll('.ws-word.found') || []).length : 0;
                 if (total > 0 && foundCount >= total) {
                     try{ playSound('win'); }catch(e){}
                     try{ if(!window.Settings || window.Settings.data.confetti) { Confetti.fire(); } }catch(e){}

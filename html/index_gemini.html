@@ -111,6 +111,7 @@
             <div class="game-controls">
                 <div class="controls-left">
                     <button id="back-to-hub-ws" class="game-button">←</button>
+                    <button id="ws-mini-menu-btn" class="game-button ws-mini-btn" aria-label="Abrir menu" title="Menu">☰</button>
                 </div>
                 <div class="controls-center">
                     <div id="ws-theme-display" class="theme-display" aria-hidden="true">
@@ -135,7 +136,10 @@
                 <div id="ws-board" style="display: grid;"></div>
                 <svg id="ws-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
             </div>
+            <div id="ws-mini-panel" class="ws-mini-panel" aria-hidden="true"></div>
             <div id="ws-words" class="ws-words"></div>
+            <!-- Floating FAB for word list (mobile friendly) -->
+            <button id="ws-words-fab" class="ws-words-fab" aria-label="Palavras" title="Palavras">📋</button>
         </div>
 
         <!-- 2048 Screen -->
