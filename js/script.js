@@ -255,8 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
             enableSound: true,
             confetti: true,
             enabledPools: { animals:true, food:true, sports:true, nature:true, tech:false },
-            wsLevel: 6,
-            wsShowDefs: true,
+            wsLevel: 10,
+                wsShowDefs: true,
+                wsShowWords: false,
             memoryLevel: '8',
             memoryCardSize: 'standard',
                 memoryTheme: 'mix',
@@ -274,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try{ if (memLevel) { const opt = Array.from(memLevel.options).find(o=>String(o.value) === String(memLevel.value)); if(opt) opt.selected = true; } }catch(e){}
                 try{ if (memTheme) { const optt = Array.from(memTheme.options).find(o=>String(o.value) === String(memTheme.value)); if(optt) optt.selected = true; } }catch(e){}
                 const cs = document.getElementById('card-size-select'); if(cs) cs.value = this.data.memoryCardSize || cs.value;
-                const wsLevel = document.getElementById('ws-level-select'); if(wsLevel) wsLevel.value = String(this.data.wsLevel||6);
+                const wsLevel = document.getElementById('ws-level-select'); if(wsLevel) wsLevel.value = String(this.data.wsLevel||10);
                 if (window.Game2048) { try{ window.Game2048.size = parseInt(this.data.g2048Size||4,10); }catch(e){} }
                 if (window.HangmanGame) { try{ window.HangmanGame.maxMistakes = parseInt(this.data.hangmanMax||6,10); }catch(e){} }
             }catch(e){}
@@ -1159,6 +1160,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     levelSel.addEventListener('change', ()=>this.init());
                 }
             }catch(e){}
+            // Create a toggle button to show/hide the word list (persisted in Settings)
+            try{
+                const existingToggle = document.getElementById('ws-toggle-words');
+                const createToggle = () => {
+                    const btn = document.createElement('button');
+                    btn.id = 'ws-toggle-words';
+                    btn.type = 'button';
+                    btn.className = 'game-button ws-toggle-words';
+                    const show = !!(window.Settings && window.Settings.data && window.Settings.data.wsShowWords);
+                    btn.textContent = show ? 'Ocultar palavras' : 'Mostrar palavras';
+                    btn.addEventListener('click', ()=>{
+                        try{
+                            const words = document.getElementById('ws-words');
+                            if (!words) return;
+                            const isHidden = words.classList.toggle('hidden');
+                            // persist preference (store true when list is visible)
+                            try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !isHidden; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!isHidden)); } }catch(e){}
+                            btn.textContent = (!isHidden) ? 'Ocultar palavras' : 'Mostrar palavras';
+                        }catch(e){}
+                    });
+                    return btn;
+                };
+                if (!existingToggle) {
+                    // try to place next to newBtn if possible
+                    try{
+                        if (this.newBtn && this.newBtn.parentNode) {
+                            const btn = createToggle();
+                            this.newBtn.parentNode.insertBefore(btn, this.newBtn.nextSibling);
+                        } else {
+                            const controls = document.getElementById('ws-controls');
+                            if (controls) controls.appendChild(createToggle());
+                        }
+                    }catch(e){}
+                } else {
+                    // ensure text reflects setting and attach click handler if missing
+                    try{
+                        const s = !!(window.Settings && window.Settings.data && window.Settings.data.wsShowWords);
+                        existingToggle.textContent = s ? 'Ocultar palavras' : 'Mostrar palavras';
+                        // attach handler once (avoid duplicates)
+                        if (!existingToggle.dataset.wsHandlerAttached) {
+                            existingToggle.addEventListener('click', ()=>{
+                                try{
+                                    const words = document.getElementById('ws-words');
+                                    if (!words) return;
+                                    const isHidden = words.classList.toggle('hidden');
+                                    try{ if (window.Settings && window.Settings.data) { window.Settings.data.wsShowWords = !isHidden; window.Settings.save(); } else { localStorage.setItem('mg_ws_show_words', JSON.stringify(!isHidden)); } }catch(e){}
+                                    existingToggle.textContent = (!isHidden) ? 'Ocultar palavras' : 'Mostrar palavras';
+                                }catch(e){}
+                            });
+                            existingToggle.dataset.wsHandlerAttached = '1';
+                        }
+                    }catch(e){}
+                }
+            }catch(e){}
             const importBtn = document.getElementById('import-ws-list');
             const importFile = document.getElementById('import-ws-file');
             if (importBtn && importFile) {
@@ -1336,12 +1391,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     const keys = Object.keys(pools || {});
                     // add 'tudo' option to allow mixed pool
                     const optAll = document.createElement('option'); optAll.value = 'tudo'; optAll.text = 'Todos'; sel.appendChild(optAll);
-                    keys.forEach(k => { const o = document.createElement('option'); o.value = k; o.text = k; sel.appendChild(o); });
+                    const wsLabels = { 'animals':'Animais', 'food':'Comida', 'sports':'Esportes', 'nature':'Natureza', 'tech':'Tecnologia', 'fruits':'Frutas', 'vegetables':'Vegetais', 'objects':'Objetos', 'flags':'Bandeiras', 'transport':'Transportes', 'music':'Música', 'faces':'Rostos', 'emoji':'Emoji', 'colors':'Cores', 'numbers':'Números', 'letters':'Letras', 'holiday':'Feriados', 'classic-cards':'Cartas Clássicas', 'animals-extended':'Animais (extenso)', 'mix':'Mix (Aleatório)' };
+                    keys.forEach(k => { const o = document.createElement('option'); o.value = k; o.text = wsLabels[k] || (String(k).charAt(0).toUpperCase() + String(k).slice(1)); sel.appendChild(o); });
                     if (current && Array.from(sel.options).some(o=>o.value===current)) sel.value = current;
+                    // update small theme display if present
+                    try{
+                        const td = document.getElementById('ws-theme-display');
+                        if (td) {
+                            const key = (sel.value) ? String(sel.value) : (Object.keys(pools||{})[0] || 'Todos');
+                            const wsLabels2 = { 'animals':'Animais', 'food':'Comida', 'sports':'Esportes', 'nature':'Natureza', 'tech':'Tecnologia', 'fruits':'Frutas', 'vegetables':'Vegetais', 'objects':'Objetos', 'flags':'Bandeiras', 'transport':'Transportes', 'music':'Música', 'faces':'Rostos', 'emoji':'Emoji', 'colors':'Cores', 'numbers':'Números', 'letters':'Letras', 'holiday':'Feriados', 'classic-cards':'Cartas Clássicas', 'animals-extended':'Animais (extenso)', 'mix':'Mix (Aleatório)' };
+                            const label = wsLabels2[key] || (key.charAt(0).toUpperCase() + String(key).slice(1));
+                            const emoji = '🔎';
+                            const em = td.querySelector('.theme-emoji'); if (em) em.textContent = emoji;
+                            const nm = td.querySelector('.theme-name'); if (nm) nm.textContent = label;
+                        }
+                    }catch(e){}
                 }
             }catch(e){}
             const levelSelect = document.getElementById('ws-level-select');
-            const amount = levelSelect ? parseInt(levelSelect.value,10) || 6 : 6;
+            const amount = levelSelect ? parseInt(levelSelect.value,10) || 10 : 10;
             const chosen = [];
             const poolCopy = pool.slice();
             while (chosen.length < amount && poolCopy.length) { const idx = Math.floor(Math.random()*poolCopy.length); chosen.push(poolCopy.splice(idx,1)[0]); }
@@ -1412,6 +1480,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         el.addEventListener('click', ()=>{ try{ el.classList.toggle('found'); }catch(e){} });
                         wordsContainer.appendChild(el);
                     });
+                    // apply persisted visibility preference: default hidden unless user enabled
+                    try{
+                        const pref = (window.Settings && window.Settings.data && typeof window.Settings.data.wsShowWords !== 'undefined') ? !!window.Settings.data.wsShowWords : (JSON.parse(localStorage.getItem('mg_ws_show_words')||'false'));
+                        if (!pref) wordsContainer.classList.add('hidden'); else wordsContainer.classList.remove('hidden');
+                        // update toggle button text if present
+                        try{ const tbtn = document.getElementById('ws-toggle-words'); if(tbtn) tbtn.textContent = pref ? 'Ocultar palavras' : 'Mostrar palavras'; }catch(e){}
+                    }catch(e){}
                 }
                 // ensure overlayEl exists
                 try{ if(!this.overlayEl) this.overlayEl = document.getElementById('ws-overlay'); }catch(e){}

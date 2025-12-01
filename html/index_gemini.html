@@ -44,12 +44,12 @@
             <div id="memory-game-controls" class="game-controls">
                 <div class="controls-left">
                     <button id="back-to-hub" class="game-button icon-btn" aria-label="Voltar">←</button>
-                    <button id="mem-config-btn" class="per-game-settings-btn icon-btn" aria-label="Abrir configurações da Memória" style="display:none">☰</button>
+                    <button id="mem-config-btn" class="per-game-settings-btn icon-btn" aria-label="Configurar Memória" style="display:none" type="submit" title="Configurações — Memória"><span class="game-icon-inline">🧠</span> <span class="gear">⚙️</span> <span class="sr-only">Configurações — Memória</span></button>
                 </div>
                 <div class="controls-center">
                     <div class="control-group theme-control">
                         <label for="theme-select" class="sr-only">Tema</label>
-                        <select id="theme-select" aria-label="Selecionar tema"></select>
+                        <select id="theme-select" aria-label="Selecionar tema"><option value="animals">Animais</option><option value="animals-extended">Animais (extenso)</option><option value="food">Comida</option><option value="tech">Tecnologia</option><option value="emoji">Emoji</option><option value="flags">Bandeiras</option><option value="transport">Transportes</option><option value="sports">Esportes</option><option value="faces">Rostos</option><option value="music">Música</option><option value="nature">Natureza</option><option value="fruits">Frutas</option><option value="vegetables">Vegetais</option><option value="objects">Objetos</option><option value="colors">Cores</option><option value="numbers">Números</option><option value="letters">Letras</option><option value="holiday">Feriados</option><option value="classic-cards">Cartas Clássicas</option><option value="mix">mix</option></select>
                     </div>
                 </div>
                 <div class="controls-right">
@@ -58,7 +58,7 @@
                         <select id="level-select" aria-label="Selecionar nível">
                             <option value="4">Fácil (4 pares)</option>
                             <option value="6">Intermediário (6 pares)</option>
-                            <option value="8" selected>Normal (8 pares)</option>
+                            <option value="8" selected="">Normal (8 pares)</option>
                             <option value="10">Difícil (10 pares)</option>
                             <option value="14">Muito Difícil (14 pares)</option>
                             <option value="16">Extremo (16 pares)</option>
@@ -68,10 +68,10 @@
                         <label for="card-size-select" class="sr-only">Tamanho</label>
                         <select id="card-size-select" aria-label="Tamanho das cartas">
                             <option value="compact">Compacto</option>
-                            <option value="standard" selected>Padrão</option>
+                            <option value="standard" selected="">Padrão</option>
                             <option value="large">Grande</option>
                         </select>
-                        <span id="card-size-preview" class="card-preview">—</span>
+                        <span id="card-size-preview" class="card-preview">82px</span>
                     </div>
                     <button id="restart-memory-game" class="game-button action-btn">Reiniciar</button>
                 </div>
@@ -90,8 +90,8 @@
             </div>
             <div id="memory-game-stats">
                 <div id="memory-theme-display" class="theme-display" aria-hidden="true">
-                    <div class="theme-emoji">🧸</div>
-                    <div class="theme-name">Tema</div>
+                    <div class="theme-emoji">🔀</div>
+                    <div class="theme-name">Mix (Aleatório)</div>
                 </div>
                 <div class="stat">
                     <span class="stat-icon">🧭</span>
@@ -99,7 +99,7 @@
                 </div>
                 <div class="stat">
                     <span class="stat-icon">⏱️</span>
-                    <div class="stat-label">Tempo <span id="time">0</span>s</div>
+                    <div class="stat-label">Tempo <span id="time">14</span>s</div>
                 </div>
                 <button id="restart-memory-game-top" class="game-button top-restart" aria-label="Reiniciar jogo">⟳</button>
             </div>
@@ -108,22 +108,34 @@
         
         <!-- WordSearch Screen -->
         <div id="wordsearch-screen" class="game-screen hidden">
-             <div class="game-controls">
-                 <button id="back-to-hub-ws" class="game-button">← Voltar</button>
-                 <h2>Caça-Palavras</h2>
-                 <button id="new-ws" class="game-button">Novo Jogo</button>
-            </div>
-             <div class="game-controls">
-                <select id="ws-theme-select" aria-label="Tema"></select>
-                <select id="ws-level-select" aria-label="Nível"></select>
-                <button id="import-ws-list" class="game-button">Importar</button>
-                <input type="file" id="import-ws-file" style="display:none;" accept=".json">
+            <div class="game-controls">
+                <div class="controls-left">
+                    <button id="back-to-hub-ws" class="game-button">←</button>
+                </div>
+                <div class="controls-center">
+                    <div id="ws-theme-display" class="theme-display" aria-hidden="true">
+                        <div class="theme-emoji">🔎</div>
+                        <div class="theme-name">Caça‑Palavras</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <h2 style="margin:0">Caça‑Palavras</h2>
+                        <button id="new-ws" class="game-button">Novo Jogo</button>
+                    </div>
+                </div>
+                <div class="controls-right">
+                    <select id="ws-theme-select" aria-label="Tema"></select>
+                    <select id="ws-level-select" aria-label="Nível"><option value="6">6</option><option value="8">8</option><option value="10" selected>10</option><option value="12">12</option><option value="16">16</option><option value="20">20</option><option value="30">30</option></select>
+                    <button id="import-ws-list" class="game-button">Importar</button>
+                    <input type="file" id="import-ws-file" style="display:none;" accept=".json">
+                    <!-- toggle; JS will control visibility/text -->
+                    <button id="ws-toggle-words" class="per-game-settings-btn">Mostrar palavras</button>
+                </div>
             </div>
             <div id="ws-board-container" style="position: relative;">
                 <div id="ws-board" style="display: grid;"></div>
                 <svg id="ws-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
             </div>
-            <div id="ws-words"></div>
+            <div id="ws-words" class="ws-words"></div>
         </div>
 
         <!-- 2048 Screen -->

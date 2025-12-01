@@ -399,12 +399,88 @@ h1, h2 {
 .controls-left, .controls-center, .controls-right { display:flex; align-items:center; gap:8px; }
 .controls-left { flex: 0 0 auto; }
 
+/* WordSearch controls: keep items inline and centered, avoid stacking */
+#wordsearch-screen .controls-center { flex-direction: row; align-items: center; gap:8px; min-width:0; }
+#wordsearch-screen .controls-center > * { display:inline-flex; align-items:center; gap:8px; }
+#wordsearch-screen .controls-right { justify-content: flex-end; }
+#wordsearch-screen .controls-right .game-button { margin-left:6px; }
+
+/* Prevent wrapping inside the WordSearch toolbar so items don't stack vertically */
+#wordsearch-screen > .game-controls { flex-wrap: nowrap; align-items: center; }
+
+/* Visual style to match Memory's toolbar: pill controls, subtle background */
+#wordsearch-screen > .game-controls {
+    background: linear-gradient(180deg, rgba(12,14,18,0.96), rgba(8,10,12,0.96));
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+#wordsearch-screen .controls-left { flex:0 0 auto; }
+#wordsearch-screen .controls-center { flex:1 1 auto; display:flex; flex-direction:column; align-items:center; }
+#wordsearch-screen .controls-right { flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+
+.theme-display { display:flex; align-items:center; gap:8px; }
+.theme-display .theme-emoji { font-size:1.3rem; width:36px; text-align:center; }
+.theme-display .theme-name { font-weight:700; color:var(--primary-color); }
+
+.per-game-settings-btn { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); padding:8px 10px; border-radius:999px; cursor:pointer; }
+.per-game-settings-btn:hover { border-color: var(--primary-color); color:var(--primary-color); }
+
+/* Make selects look like pills and enforce dark theme for WordSearch selects/options */
+#wordsearch-screen select { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color) !important; padding:8px 10px; border-radius:999px; }
+#wordsearch-screen select, #wordsearch-screen .control-group select { background-color: var(--card-color) !important; color: var(--text-color) !important; border-color: rgba(255,255,255,0.04) !important; }
+#wordsearch-screen select option { background-color: var(--card-color) !important; color: var(--text-color) !important; }
+
+/* Smaller title to fit the pill bar */
+#wordsearch-screen h2 { font-size:1.1rem; color:var(--text-color); margin:0; }
+
+/* Mobile / app-like layout for WordSearch */
+@media (max-width:900px) {
+    #wordsearch-screen > .game-controls {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        bottom: 12px;
+        z-index: 1400;
+        background: linear-gradient(180deg, rgba(10,12,16,0.96), rgba(8,10,12,0.92));
+        border-radius: 14px;
+        padding: 8px 10px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.04);
+        backdrop-filter: blur(6px);
+    }
+    /* keep the center controls visible on mobile but compact */
+    #wordsearch-screen .controls-center { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; max-width:48%; }
+    #wordsearch-screen .controls-left { flex: 0 0 auto; }
+    #wordsearch-screen .controls-right { flex: 0 0 auto; display:flex; justify-content:flex-end; gap:8px; align-items:center; }
+    /* make selects compact and visible (avoid disappearing menus) */
+    #wordsearch-screen select { display:inline-flex !important; padding:6px 8px; font-size:0.92rem; min-width:56px; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #wordsearch-screen #import-ws-list { display:inline-flex; }
+    /* show toggle as a circular icon button but allow text when space permits */
+    #ws-toggle-words { display:inline-flex !important; align-items:center; justify-content:center; height:44px; border-radius:999px; padding:6px 10px; }
+    /* make primary new button a pill */
+    #new-ws { padding:10px 14px; border-radius:999px; font-weight:700; }
+    /* give board room so bottom bar doesn't cover it */
+    #ws-board-container { margin-bottom: 120px; }
+}
+
 /* WordSearch styles */
 .ws-board{ display:grid; gap:6px; place-items:stretch; grid-auto-rows:1fr; }
 .ws-cell{ display:flex; align-items:center; justify-content:center; user-select:none; padding:6px; background:var(--card-color); border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.4); font-weight:700; cursor:pointer; -webkit-tap-highlight-color: transparent; }
 .ws-cell.selected{ background:#f39c12; color:#fff; }
 .ws-cell{ font-size: clamp(12px, 2.6vw, 20px); height: 2.6rem; width: 2.6rem; }
 .ws-words{ display:flex; flex-wrap:wrap; gap:8px; padding:6px; max-height:240px; overflow:auto; margin-top:8px; }
+.ws-words.hidden{ display:none !important; }
 .ws-word{ padding:6px 8px; background:rgba(255,255,255,0.02); border-radius:6px; font-weight:600; color:var(--text-color); }
 .ws-word.found{ text-decoration:line-through; opacity:0.55; }
 .ws-overlay polyline{ stroke:#ff5252; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; fill:none; pointer-events:none; }
