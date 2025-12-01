@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    try{ console.info('[script.js] loaded (v20251130)'); }catch(e){}
     // --- SoundEngine (WebAudio) - refined ---
     window.SoundEngine = {
         ctx: null,
@@ -438,8 +439,22 @@ document.addEventListener('DOMContentLoaded', () => {
             cards.forEach(c => {
                 try{ const g = c.dataset.game; const ic = icons[g] || '🎮'; if(!c.querySelector('.game-icon')){ const el = document.createElement('div'); el.className='game-icon'; el.textContent = ic; el.style.fontSize='2.2em'; el.style.marginBottom='8px'; c.insertBefore(el, c.firstChild); } }catch(e){}
             });
-            try{ const mapBtn = { mem: 'mem-settings-btn', ws: 'ws-settings-btn', g2048: 'g2048-settings-btn', sd: 'sd-settings-btn', hm: 'hm-settings-btn' };
-                Object.keys(mapBtn).forEach(key => { const id = mapBtn[key]; const btn = document.getElementById(id); if(!btn) return; const gameKey = ({mem:'memory', ws:'wordsearch', g2048:'2048', sd:'sudoku', hm:'hangman'})[key]; const ic = icons[gameKey] || '🎮'; btn.textContent = ic + ' ⚙️'; }); }catch(e){}
+            try{
+                const mapBtn = { mem: 'mem-config-btn', ws: 'ws-settings-btn', g2048: 'g2048-settings-btn', sd: 'sd-settings-btn', hm: 'hm-settings-btn' };
+                const gameLabels = { memory: 'Memória', wordsearch: 'Caça‑Palavras', '2048': '2048', sudoku: 'Sudoku', hangman: 'Forca' };
+                Object.keys(mapBtn).forEach(key => {
+                    const id = mapBtn[key];
+                    const btn = document.getElementById(id);
+                    if(!btn) return;
+                    const gameKey = ({mem:'memory', ws:'wordsearch', g2048:'2048', sd:'sudoku', hm:'hangman'})[key];
+                    const ic = icons[gameKey] || '🎮';
+                    // Ensure it's a button and accessible: icon + visible gear, with hidden text for screen readers
+                    try{ btn.type = btn.type || 'button'; }catch(e){}
+                    const label = gameLabels[gameKey] || (gameKey || 'Jogo');
+                    btn.innerHTML = `<span class="game-icon-inline">${ic}</span> <span class="gear">⚙️</span> <span class="sr-only">Configurações — ${label}</span>`;
+                    try{ btn.setAttribute('aria-label', 'Configurações — ' + label); btn.title = 'Configurações — ' + label; }catch(e){}
+                });
+            }catch(e){}
         }catch(e){}
     })();
 
@@ -643,14 +658,28 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(bindMiniEvents, 300);
 
             if (memConfigBtn) {
+                try{ memConfigBtn.type = memConfigBtn.type || 'button'; memConfigBtn.setAttribute('aria-label','Configurar Memória'); memConfigBtn.title = memConfigBtn.title || 'Configurar Memória'; }catch(e){}
                 memConfigBtn.addEventListener('click', (ev) => showMini('memory', 'both', ev.currentTarget));
             }
             if (wsLevelBtn) {
+                try{ wsLevelBtn.type = wsLevelBtn.type || 'button'; wsLevelBtn.setAttribute('aria-label','Ajustar nível (Caça‑Palavras)'); wsLevelBtn.title = wsLevelBtn.title || 'Ajustar nível'; }catch(e){}
                 wsLevelBtn.addEventListener('click', (ev) => showMini('ws', 'level', ev.currentTarget));
             }
             if (wsThemeBtn) {
+                try{ wsThemeBtn.type = wsThemeBtn.type || 'button'; wsThemeBtn.setAttribute('aria-label','Escolher tema (Caça‑Palavras)'); wsThemeBtn.title = wsThemeBtn.title || 'Escolher tema'; }catch(e){}
                 wsThemeBtn.addEventListener('click', (ev) => showMini('ws', 'theme', ev.currentTarget));
             }
+
+            // Bind dedicated WordSearch settings button (opens the same mini-popup)
+            try{
+                const wsSettingsBtn = document.getElementById('ws-settings-btn');
+                if (wsSettingsBtn) {
+                    try{ wsSettingsBtn.type = wsSettingsBtn.type || 'button'; wsSettingsBtn.setAttribute('aria-label','Configurações do Caça‑Palavras'); wsSettingsBtn.title = wsSettingsBtn.title || 'Configurações'; }catch(e){}
+                    wsSettingsBtn.addEventListener('click', (ev) => { try{ showMini('ws', 'both', ev.currentTarget); }catch(err){} });
+                    // keyboard activation with Enter/Space for accessibility
+                    wsSettingsBtn.addEventListener('keydown', (e) => { try{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showMini('ws','both', e.currentTarget); } }catch(err){} });
+                }
+            }catch(e){}
 
             const cfgExport = document.getElementById('cfg-export-theme');
             const cfgImport = document.getElementById('cfg-import-theme');
@@ -1115,7 +1144,21 @@ document.addEventListener('DOMContentLoaded', () => {
         start() {
             this.newBtn.addEventListener('click', ()=>this.init());
             this.themeSelect.addEventListener('change', ()=>this.init());
-            const levelSel = document.getElementById('ws-level-select'); if (levelSel) levelSel.addEventListener('change', ()=>this.init());
+            // cache overlay svg element for polyline drawing
+            try{ this.overlayEl = document.getElementById('ws-overlay'); }catch(e){ this.overlayEl = null; }
+            const levelSel = document.getElementById('ws-level-select');
+            try{
+                if (levelSel) {
+                    // populate level options if empty
+                    if (!levelSel.options || levelSel.options.length === 0) {
+                        const opts = [6,8,10,12,16,20,30];
+                        opts.forEach(v=>{ const o = document.createElement('option'); o.value = String(v); o.text = String(v); levelSel.appendChild(o); });
+                        // apply saved preference
+                        try{ const pref = (window.Settings && window.Settings.data && window.Settings.data.wsLevel) ? String(window.Settings.data.wsLevel) : null; if (pref && Array.from(levelSel.options).some(o=>o.value===pref)) levelSel.value = pref; }catch(e){}
+                    }
+                    levelSel.addEventListener('change', ()=>this.init());
+                }
+            }catch(e){}
             const importBtn = document.getElementById('import-ws-list');
             const importFile = document.getElementById('import-ws-file');
             if (importBtn && importFile) {
@@ -1155,50 +1198,225 @@ document.addEventListener('DOMContentLoaded', () => {
         async init() {
             const theme = this.themeSelect.value;
             let externalPools = null;
-            try{ const resp = await (async ()=>{ try { return await fetch('../json/ws-pools.json'); } catch(e){ return null; } })(); if (resp && resp.ok) { const data = await resp.json(); if (data && data.pools) externalPools = data.pools; } }catch(e){}
-            const pools = externalPools ? externalPools : {};
-            if (this.externalLists) { Object.keys(this.externalLists).forEach(k=> { pools[k] = (this.externalLists[k]||[]).slice(); }); }
-            Object.keys(pools).forEach(k=>{
-                const target = 220;
-                let src = (pools[k]||[]).map(s=>String(s).toUpperCase());
-                const onlyLetters = v => (/^[\p{L}]+$/u).test(v);
-                let cleaned = src.filter(onlyLetters);
-                if (cleaned.length < target) {
-                    for (const token of src) {
-                        if (cleaned.length >= target) break;
-                        if (!onlyLetters(token)) {
-                            const candidate = token.replace(/[^\p{L}]/gu, '');
-                            if (candidate && onlyLetters(candidate) && !cleaned.includes(candidate)) cleaned.push(candidate);
+            // If a static JS-provided pools object exists (works with file://), prefer it and avoid fetch/CORS
+            try{ if (window && window.WS_POOLS && window.WS_POOLS.pools) { externalPools = window.WS_POOLS.pools; console.info('[WordSearch] using embedded WS_POOLS from js/ws-pools.js'); } }catch(e){}
+            // Only attempt network fetches when we don't already have embedded pools
+            // and when not running under file:// (browsers block file:// fetches).
+            if (!externalPools) {
+                if (window && window.location && window.location.protocol === 'file:') {
+                    try{ console.info('[WordSearch] running under file:// - skipping network fetch attempts'); }catch(e){}
+                } else {
+                    try{
+                        // try several likely relative paths (works on GH Pages and local served sites)
+                        const candidates = [
+                            './json/ws-pools.json',
+                            'json/ws-pools.json',
+                            '../json/ws-pools.json',
+                            '/json/ws-pools.json',
+                            'https://maykonlong.github.io/json/ws-pools.json'
+                        ];
+                        for (let i = 0; i < candidates.length; i++){
+                            try{
+                                const url = candidates[i];
+                                const resp = await fetch(url, { cache: 'no-store' });
+                                if (resp && resp.ok){
+                                    const data = await resp.json();
+                                    if (data && data.pools) { externalPools = data.pools; console.info('[WordSearch] loaded external pools from', url); break; }
+                                }
+                            }catch(e){ /* try next candidate */ }
                         }
+                    }catch(e){ console.info('[WordSearch] no external pools found', e && e.message ? e.message : e); }
+                }
+            }
+            const pools = (externalPools && typeof externalPools === 'object') ? externalPools : {};
+            if (!externalPools) { console.info('[WordSearch] no externalPools - using local/externalLists only'); }
+            if (this.externalLists) { Object.keys(this.externalLists).forEach(k=> { pools[k] = (this.externalLists[k]||[]).slice(); }); }
+            try{
+                Object.keys(pools).forEach(k=>{
+                    const target = 220;
+                    let arr = Array.isArray(pools[k]) ? pools[k] : [];
+                    if (!Array.isArray(pools[k])) { try{ console.info('[WordSearch] pool not an array for', k, 'falling back to []'); }catch(e){} }
+                    const onlyLetters = v => (/^[\p{L}]+$/u).test(v);
+                    // Build cleaned list by extracting letter-sequences from each entry.
+                    // This handles cases where a single pool entry contains several words
+                    // concatenated with spaces or punctuation (we extract separate words).
+                    let cleaned = [];
+                    for (const raw of (arr||[])){
+                        try{
+                            const s = String(raw||'').toUpperCase();
+                            if(!s) continue;
+                            // extract contiguous sequences of letters (Unicode aware)
+                            const parts = s.match(/\p{L}+/gu) || [];
+                            for (const p of parts){
+                                if (!p) continue;
+                                // skip too-short fragments
+                                if (p.length < 2) continue;
+                                // normalize: remove diacritics? keep as-is for now
+                                if (!onlyLetters(p)) continue;
+                                if (!cleaned.includes(p)) cleaned.push(p);
+                                if (cleaned.length >= target) break;
+                            }
+                            if (cleaned.length >= target) break;
+                        }catch(e){}
                     }
-                }
-                cleaned = Array.from(new Set(cleaned));
-                let i = 0;
-                while (cleaned.length < target && cleaned.length>0 && i < target*3) {
-                    const base = cleaned[i % cleaned.length];
-                    const candidate = base + String(Math.floor(i/cleaned.length)+1);
-                    if (!cleaned.includes(candidate) && (/^[\p{L}0-9]+$/u).test(candidate)) cleaned.push(candidate);
-                    i++;
-                }
-                while (cleaned.length < target) { cleaned.push('PALAVRA' + Math.random().toString(36).slice(2,6).toUpperCase()); }
-                pools[k] = cleaned;
-            });
+                    cleaned = Array.from(new Set(cleaned));
+                    let i = 0;
+                    while (cleaned.length < target && cleaned.length>0 && i < target*3) {
+                        const base = cleaned[i % cleaned.length];
+                        // create a letter-only suffix (A-Z) to avoid numeric tokens like 'LULA1'
+                        const suffix = String.fromCharCode(65 + (i % 26));
+                        const candidate = base + suffix;
+                        if (!cleaned.includes(candidate) && (/^[\p{L}]+$/u).test(candidate)) cleaned.push(candidate);
+                        i++;
+                    }
+                    while (cleaned.length < target) {
+                        // generate a random letters-only filler
+                        const letters = Array.from({length:4}, ()=> String.fromCharCode(65 + Math.floor(Math.random()*26))).join('');
+                        cleaned.push(('PAL' + letters).toUpperCase());
+                    }
+
+                    // Normalize tokens: if a token appears to be another token + trailing garbage
+                    // (e.g., CISNEPN), prefer the shorter meaningful token. Also remove duplicates.
+                    try{
+                        const norm = [];
+                        for (const t of cleaned) {
+                            let chosen = t;
+                            // find any shorter token that is a prefix of t
+                            const shorter = cleaned.filter(s => s !== t && s.length >= 3 && t.startsWith(s));
+                            if (shorter && shorter.length) {
+                                shorter.sort((a,b)=> b.length - a.length); // prefer longest matching short token
+                                chosen = shorter[0];
+                            } else {
+                                // try stripping small trailing fragments if that yields an existing token
+                                for (let drop = 1; drop <= 4 && drop < t.length; drop++) {
+                                    const cand = t.slice(0, t.length - drop);
+                                    if (cand.length >= 3 && cleaned.includes(cand)) { chosen = cand; break; }
+                                }
+                            }
+                            if (!norm.includes(chosen)) norm.push(chosen);
+                        }
+                        cleaned = norm;
+                    }catch(e){}
+
+                    pools[k] = cleaned;
+                });
+            }catch(err){
+                try{ console.error('[WordSearch] error processing pools, falling back to safe defaults', err); }catch(e){}
+            }
             try{ if (pools) { const enabled = (window.Settings && window.Settings.data && window.Settings.data.enabledPools) || null; if (enabled) { Object.keys(pools).forEach(pk => { if (!enabled[pk]) delete pools[pk]; }); } else { if (pools.hasOwnProperty('tech')) delete pools['tech']; } } }catch(e){}
             try{ this.offlineDict = this.offlineDict || {}; Object.keys(pools).forEach(themeKey => { if (String(themeKey).toLowerCase() === 'tech') return; (pools[themeKey]||[]).forEach(w => { try{ const key = String(w||'').toUpperCase(); if (!key) return; if (!(/^[\p{L}]+$/u).test(key)) return; try{ const enabled = (window.Settings && window.Settings.data && window.Settings.data.enabledPools) || null; if (enabled && enabled[themeKey] === false) return; if (!this.offlineDict.hasOwnProperty(key)) { this.offlineDict[key] = `Palavra (${themeKey}): ${key}`; } }catch(e){} }catch(e){} }); }); }catch(e){}
+            // Ensure `pool` is always an array to avoid runtime errors when external data is missing
             let pool = [];
-            if (theme === 'tudo') { Object.keys(pools).forEach(k=> pool = pool.concat(pools[k])); } else { pool = pools[theme] || pools['animals']; }
-            pool = Array.from(new Set(pool.map(w=>String(w).toUpperCase())));
+            if (theme === 'tudo') {
+                Object.keys(pools).forEach(k=> pool = pool.concat(pools[k] || []));
+            } else {
+                pool = Array.isArray(pools[theme]) ? pools[theme] : (Array.isArray(pools['animals']) ? pools['animals'] : []);
+            }
+            try{
+                // Normalize pool: split any entry into letter-only parts (handles entries
+                // that contain multiple words or separators), upper-case and dedupe.
+                const raw = (pool || []).flatMap(item => {
+                    try{
+                        const s = String(item||'').toUpperCase();
+                        if(!s) return [];
+                        const parts = s.match(/\p{L}+/gu) || [];
+                        return parts.filter(p => p && p.length >= 2);
+                    }catch(e){ return []; }
+                });
+                pool = Array.from(new Set(raw)).filter(p => (/^[\p{L}]+$/u).test(p));
+            }catch(e){ pool = []; }
+
+            // Populate theme select with available pools
+            try{
+                const sel = this.themeSelect;
+                if (sel) {
+                    // keep current selection if present
+                    const current = sel.value;
+                    sel.innerHTML = '';
+                    const keys = Object.keys(pools || {});
+                    // add 'tudo' option to allow mixed pool
+                    const optAll = document.createElement('option'); optAll.value = 'tudo'; optAll.text = 'Todos'; sel.appendChild(optAll);
+                    keys.forEach(k => { const o = document.createElement('option'); o.value = k; o.text = k; sel.appendChild(o); });
+                    if (current && Array.from(sel.options).some(o=>o.value===current)) sel.value = current;
+                }
+            }catch(e){}
             const levelSelect = document.getElementById('ws-level-select');
             const amount = levelSelect ? parseInt(levelSelect.value,10) || 6 : 6;
             const chosen = [];
             const poolCopy = pool.slice();
             while (chosen.length < amount && poolCopy.length) { const idx = Math.floor(Math.random()*poolCopy.length); chosen.push(poolCopy.splice(idx,1)[0]); }
             this.words = chosen;
+            // choose grid size heuristically based on amount and longest word
+            try{
+                const longest = this.words.reduce((m,w)=> Math.max(m, String(w||'').length), 0);
+                let gridSize = 10;
+                if (amount <= 6) gridSize = Math.max(8, longest + 4);
+                else if (amount <= 8) gridSize = Math.max(9, longest + 4);
+                else if (amount <= 10) gridSize = Math.max(11, longest + 4);
+                else if (amount <= 12) gridSize = Math.max(12, longest + 4);
+                else if (amount <= 16) gridSize = Math.max(13, longest + 5);
+                else if (amount <= 20) gridSize = Math.max(16, longest + 5);
+                else gridSize = Math.max(18, Math.ceil(Math.sqrt(amount * 3)));
+                this.size = Math.min(24, gridSize);
+            }catch(e){}
             this.generateGrid();
             this.render();
         },
         generateGrid() { const n = this.size; const grid = Array.from({length:n}, ()=>Array.from({length:n}, ()=>'')); const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]; function canPlace(w,r,c,dr,dc){ for(let i=0;i<w.length;i++){ const rr=r+dr*i, cc=c+dc*i; if(rr<0||rr>=n||cc<0||cc>=n) return false; const ch=grid[rr][cc]; if(ch&&ch!==w[i]) return false; } return true; } function place(w,r,c,dr,dc){ for(let i=0;i<w.length;i++){ grid[r+dr*i][c+dc*i]=w[i]; } } this.words.forEach(w=>{ let placed=false, attempts=0; while(!placed&&attempts<200){ attempts++; const dir=dirs[Math.floor(Math.random()*dirs.length)]; const r=Math.floor(Math.random()*n); const c=Math.floor(Math.random()*n); if(canPlace(w,r,c,dir[0],dir[1])){ place(w,r,c,dir[0],dir[1]); placed=true; } } }); const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; for(let i=0;i<n;i++) for(let j=0;j<n;j++) if(!grid[i][j]) grid[i][j]=letters[Math.floor(Math.random()*letters.length)]; this.grid = grid; },
-        render() { /* rendering code omitted for brevity in this extracted file; original inline script contains full implementation */ },
+        render() {
+            try{
+                const board = this.boardEl = this.boardEl || document.getElementById('ws-board');
+                const wordsContainer = this.wordsEl = this.wordsEl || document.getElementById('ws-words');
+                if (!board) return;
+                // render grid
+                const n = this.size;
+                board.innerHTML = '';
+                board.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+                for (let r = 0; r < n; r++){
+                    for (let c = 0; c < n; c++){
+                        const cell = document.createElement('div');
+                        cell.className = 'ws-cell';
+                        cell.style.userSelect = 'none';
+                        cell.textContent = (this.grid && this.grid[r] && this.grid[r][c]) ? this.grid[r][c] : '';
+                        cell.dataset.row = r; cell.dataset.col = c;
+                        cell.style.display = 'flex'; cell.style.alignItems='center'; cell.style.justifyContent='center'; cell.style.padding='6px';
+                        cell.style.border = '1px solid rgba(255,255,255,0.03)';
+                        cell.style.fontWeight = '700';
+                        cell.style.cursor = 'pointer';
+                        board.appendChild(cell);
+                        // pointerenter for selection
+                        cell.addEventListener('pointerenter', (e)=>{ try{ this.onPointerEnter(e); }catch(err){} });
+                    }
+                }
+                // pointerdown on board
+                try{ board.removeEventListener('pointerdown', this._boundBoardPointerDown); }catch(e){}
+                this._boundBoardPointerDown = this.onPointerDown.bind(this);
+                board.addEventListener('pointerdown', this._boundBoardPointerDown);
+
+                // render word list
+                if (wordsContainer){
+                    wordsContainer.innerHTML = '';
+                    this.words.forEach(w => {
+                        const el = document.createElement('div');
+                        el.className = 'ws-word';
+                        el.dataset.word = w;
+                        el.textContent = w;
+                        el.style.padding = '6px 4px';
+                        el.style.margin = '4px';
+                        el.style.display = 'inline-block';
+                        el.style.borderRadius = '6px';
+                        el.style.background = 'transparent';
+                        el.style.border = '1px solid rgba(255,255,255,0.04)';
+                        el.style.fontWeight = '600';
+                        // clicking a word toggles a hint/highlight
+                        el.addEventListener('click', ()=>{ try{ el.classList.toggle('found'); }catch(e){} });
+                        wordsContainer.appendChild(el);
+                    });
+                }
+                // ensure overlayEl exists
+                try{ if(!this.overlayEl) this.overlayEl = document.getElementById('ws-overlay'); }catch(e){}
+            }catch(e){ console.error('[WordSearch] render error', e); }
+        },
         onPointerDown(e){ if(!e.target.classList.contains('ws-cell')) return; this.selecting=true; this.selected=[e.target]; e.target.classList.add('selected'); try{ this._boundBoardPointerMove = this._onBoardPointerMove.bind(this); this.boardEl.addEventListener('pointermove', this._boundBoardPointerMove); this._boundDocPointerUp = this._onDocumentPointerUp.bind(this); document.addEventListener('pointerup', this._boundDocPointerUp); document.addEventListener('pointercancel', this._boundDocPointerUp); }catch(err){} try{ if (!this.polyline && this.overlayEl) { const ns = 'http://www.w3.org/2000/svg'; const poly = document.createElementNS(ns, 'polyline'); poly.setAttribute('fill','none'); poly.setAttribute('stroke','rgba(0,204,153,0.85)'); poly.setAttribute('stroke-width','8'); poly.setAttribute('stroke-linecap','round'); poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('pointer-events','none'); poly.setAttribute('class','ws-polyline'); this.overlayEl.appendChild(poly); this.polyline = poly; } if (this.polyline) { this.points = []; this._addPointForCell(e.target); this._updatePolyline(); this.polyline.style.display = ''; } }catch(e){} },
         onPointerEnter(e){ if(this.selecting && e.target.classList.contains('ws-cell') && !this.selected.includes(e.target)){ this.selected.push(e.target); e.target.classList.add('selected'); if (this.polyline) { this._addPointForCell(e.target); this._updatePolyline(); } } },
         onPointerUp(e){
@@ -1232,6 +1450,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         }, 120);
                     } catch(e) {}
                 }, 600);
+            // after marking a found word, check for victory
+            try{
+                const total = this.words ? this.words.length : 0;
+                const foundCount = this.wordsEl ? Array.from(this.wordsEl.children).filter(x=> x.classList && x.classList.contains('found')).length : 0;
+                if (total > 0 && foundCount >= total) {
+                    try{ playSound('win'); }catch(e){}
+                    try{ if(!window.Settings || window.Settings.data.confetti) { Confetti.fire(); } }catch(e){}
+                    setTimeout(()=>{ try{ alert('Parabéns — você encontrou todas as palavras!'); }catch(e){} }, 300);
+                }
+            }catch(e){}
             }
         } else {
             this.selected.forEach(s=>s.classList.remove('selected'));

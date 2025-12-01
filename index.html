@@ -108,12 +108,13 @@
         </div>
         
         <!-- WordSearch Screen -->
-        <div id="wordsearch-screen" class="game-screen hidden">
-             <div class="game-controls">
-                 <button id="back-to-hub-ws" class="game-button">← Voltar</button>
-                 <h2>Caça-Palavras</h2>
-                 <button id="new-ws" class="game-button">Novo Jogo</button>
-            </div>
+           <div id="wordsearch-screen" class="game-screen hidden">
+               <div class="game-controls">
+                  <button id="back-to-hub-ws" class="game-button">← Voltar</button>
+                  <h2>Caça-Palavras</h2>
+                  <button id="new-ws" class="game-button">Novo Jogo</button>
+                  <button id="ws-settings-btn" class="per-game-settings-btn icon-btn" aria-label="Configurações do Caça‑Palavras" title="Configurações">⚙️</button>
+              </div>
              <div class="game-controls">
                 <select id="ws-theme-select" aria-label="Tema"></select>
                 <select id="ws-level-select" aria-label="Nível"></select>
@@ -173,6 +174,7 @@
 
     <canvas id="confetti-canvas"></canvas>
     
-    <script src="js/script.js" defer></script>
+    <script src="js/ws-pools.js"></script>
+    <script src="js/script.js?v=20251130" defer></script>
 </body>
 </html>

@@ -391,13 +391,35 @@ h1, h2 {
 .game-controls .control-group { display:flex; align-items:center; gap:8px; margin-right:8px; }
 .per-game-settings-btn { background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;cursor:pointer;font-size:1em }
 .per-game-settings-btn:hover { border-color:var(--primary-color); color:var(--primary-color); }
+.per-game-settings-btn { min-width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; padding:8px; border-radius:10px; }
+.per-game-settings-btn:focus-visible { outline: 3px solid rgba(0,204,153,0.18); outline-offset: 3px; }
+.per-game-settings-btn:hover { transform: translateY(-2px); }
 
 /* New control groups layout */
 .controls-left, .controls-center, .controls-right { display:flex; align-items:center; gap:8px; }
 .controls-left { flex: 0 0 auto; }
+
+/* WordSearch styles */
+.ws-board{ display:grid; gap:6px; place-items:stretch; grid-auto-rows:1fr; }
+.ws-cell{ display:flex; align-items:center; justify-content:center; user-select:none; padding:6px; background:var(--card-color); border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.4); font-weight:700; cursor:pointer; -webkit-tap-highlight-color: transparent; }
+.ws-cell.selected{ background:#f39c12; color:#fff; }
+.ws-cell{ font-size: clamp(12px, 2.6vw, 20px); height: 2.6rem; width: 2.6rem; }
+.ws-words{ display:flex; flex-wrap:wrap; gap:8px; padding:6px; max-height:240px; overflow:auto; margin-top:8px; }
+.ws-word{ padding:6px 8px; background:rgba(255,255,255,0.02); border-radius:6px; font-weight:600; color:var(--text-color); }
+.ws-word.found{ text-decoration:line-through; opacity:0.55; }
+.ws-overlay polyline{ stroke:#ff5252; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; fill:none; pointer-events:none; }
+
 .controls-center { flex: 1 1 auto; justify-content: center; }
 .controls-right { flex: 0 0 auto; }
 .icon-btn { padding:8px 10px; border-radius:10px; font-size:1.04rem; background-color: transparent; border:1px solid rgba(255,255,255,0.04); }
+
+/* Inline game icon used in compact buttons */
+.game-icon-inline { font-size:1.2rem; display:inline-block; width:1.4em; text-align:center; vertical-align:middle; }
+.gear { font-size:1rem; opacity:0.95; margin-left:6px; vertical-align:middle; }
+
+/* Screen-reader only text */
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+
 .action-btn { padding:10px 14px; border-radius:10px; }
 .control-group select { appearance:none; -webkit-appearance:none; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); padding:8px 12px; border-radius:999px; font-weight:600; }
 .control-group .card-preview { margin-left:8px; color:#aaa; font-size:0.9em; }
