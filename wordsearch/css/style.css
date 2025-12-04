@@ -1,0 +1,163 @@
+/* 🔎 CAÇA-PALAVRAS - 100% MOBILE FIX */
+
+#wordsearch-screen {
+    background: linear-gradient(180deg, #FFB347 0%, #FFCC33 100%);
+    min-height: 100vh;
+    padding: 10px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden !important;
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+#ws-controls {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 20px !important;
+    padding: 8px !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+    border: 3px solid #FF8C00 !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5px !important;
+    margin: 5px auto 10px !important;
+    width: 98% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+#ws-controls .game-button,
+#ws-controls select {
+    background: linear-gradient(to bottom, #FFA500, #FFD700) !important;
+    border: 2px solid #fff !important;
+    border-radius: 20px !important;
+    color: #fff !important;
+    font-weight: bold !important;
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(255, 165, 0, 0.4) !important;
+    transition: all 0.2s;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.wordsearch-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0 auto;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+#ws-board {
+    display: grid;
+    gap: 2px;
+    margin: 10px auto;
+    background: #fff;
+    padding: 8px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border: 3px solid #FF8C00;
+    position: relative;
+    width: auto !important;
+    max-width: 95vw !important;
+    box-sizing: border-box;
+}
+
+.ws-cell {
+    background: linear-gradient(135deg, #FFE4B5, #FFD700);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-radius: 4px;
+    border: 1px solid #FFA500;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+.ws-cell.selected {
+    background: linear-gradient(135deg, #00E676, #00C853) !important;
+    color: #fff !important;
+}
+
+.ws-cell.found {
+    background: linear-gradient(135deg, #64B5F6, #42A5F5) !important;
+    color: #fff !important;
+}
+
+#ws-words {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 10px;
+    margin: 10px auto;
+    max-width: 95vw;
+    width: 95%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: 3px solid #FF8C00;
+    box-sizing: border-box;
+}
+
+.ws-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+}
+
+.ws-word {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 2px;
+    background: linear-gradient(135deg, #FFE082, #FFCA28);
+    border-radius: 12px;
+    border: 2px solid #FFA000;
+    font-weight: bold;
+    font-size: 0.75rem;
+    color: #333;
+    white-space: nowrap;
+}
+
+.ws-word.found {
+    background: linear-gradient(135deg, #81C784, #66BB6A) !important;
+    text-decoration: line-through;
+    color: #fff !important;
+}
+
+#ws-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#ws-hint {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 10px;
+    margin: 10px auto;
+    max-width: 95vw;
+    width: 95%;
+    border: 3px solid #FFD700;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    font-size: 0.8rem;
+    box-sizing: border-box;
+}

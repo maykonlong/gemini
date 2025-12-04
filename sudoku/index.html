@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sudoku</title>
+    <link rel="stylesheet" href="../shared/css/style.css">
+    <link rel="stylesheet" href="../shared/css/settings-modal.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="sudoku-screen" class="game-screen">
+            <div id="sudoku-controls">
+                <a href="../index.html" id="back-to-hub-sudoku" class="game-button icon-btn"
+                    style="text-decoration:none; display:flex; align-items:center; justify-content:center;">←</a>
+                <button id="sd-config-btn" class="game-button icon-btn">☰</button>
+                <button id="new-sudoku" class="game-button">Novo</button>
+            </div>
+            <div id="sudoku-board"></div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" style="display:none;" aria-hidden="true">
+            <div class="settings-sheet">
+                <div style="display:flex;">
+                    <div class="settings-content" style="width:100%">
+                        <div class="cfg-tab" id="tab-sudoku" style="display:block;">
+                            <h3>🔢 Configurações</h3>
+                            <label><span>Som</span><button id="cfg-enable-sound-btn" class="toggle-btn"
+                                    aria-pressed="true">🔊</button></label>
+                            <label><span>Confete</span><input type="checkbox" id="cfg-confetti" checked></label>
+                            <hr>
+                            <p>Em breve...</p>
+                        </div>
+                        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+                            <button id="cfg-close" class="game-button">Fechar</button>
+                            <button id="cfg-save" class="game-button">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="../shared/js/core.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.SoundEngine) window.SoundEngine.init();
+            if (window.Settings) window.Settings.init();
+
+            if (window.SudokuGame) {
+                window.SudokuGame.start();
+            }
+
+            const btn = document.getElementById('sd-config-btn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (window.Settings) window.Settings.openModal();
+                });
+            }
+
+            const closeBtn = document.getElementById('cfg-close');
+            const saveBtn = document.getElementById('cfg-save');
+            if (closeBtn) closeBtn.addEventListener('click', () => window.Settings.closeModal());
+            if (saveBtn) saveBtn.addEventListener('click', () => {
+                window.Settings.save();
+                window.Settings.closeModal();
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+
+</html>

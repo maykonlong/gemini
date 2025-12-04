@@ -1,0 +1,81 @@
+/* 🧠 MEMÓRIA - MOBILE OTIMIZADO */
+
+@media (max-width: 767px) {
+    #memory-game-screen {
+        padding: 5px !important;
+    }
+
+    #memory-game-controls {
+        padding: 8px !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        flex-wrap: wrap;
+    }
+
+    .controls-left,
+    .controls-center,
+    .controls-right {
+        flex: none !important;
+        width: auto !important;
+    }
+
+    #memory-game-controls .game-button {
+        padding: 8px 12px !important;
+        font-size: 1rem !important;
+        min-width: 40px !important;
+    }
+
+    #memory-game-controls select {
+        padding: 6px 10px !important;
+        font-size: 0.85rem !important;
+        max-width: 120px !important;
+    }
+
+    #theme-select,
+    #level-select {
+        font-size: 0.8rem !important;
+        padding: 5px 8px !important;
+    }
+
+    #memory-game-stats {
+        font-size: 0.85rem !important;
+        padding: 8px !important;
+        gap: 15px !important;
+        margin-bottom: 8px !important;
+    }
+
+    #memory-game-board {
+        padding: 8px !important;
+        gap: 6px !important;
+        max-width: 95vw !important;
+    }
+
+    .memory-card {
+        font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+        min-height: 60px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #memory-game-controls {
+        padding: 6px !important;
+        gap: 4px !important;
+    }
+
+    #memory-game-controls select {
+        font-size: 0.75rem !important;
+        padding: 4px 6px !important;
+        max-width: 100px !important;
+    }
+
+    #memory-game-stats {
+        font-size: 0.75rem !important;
+        padding: 6px !important;
+        gap: 10px !important;
+    }
+
+    .memory-card {
+        min-height: 50px !important;
+        font-size: clamp(1.2rem, 4vw, 2rem) !important;
+    }
+}

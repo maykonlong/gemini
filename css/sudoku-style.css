@@ -1,0 +1,87 @@
+/* 🔢 SUDOKU - MOBILE OTIMIZADO */
+
+#sudoku-screen {
+    background: linear-gradient(180deg, #E1BEE7 0%, #CE93D8 100%);
+    min-height: 100vh;
+    padding: 10px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden !important;
+}
+
+#sudoku-controls {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: 3px solid #9C27B0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    width: 98%;
+}
+
+#sudoku-controls .game-button {
+    background: linear-gradient(to bottom, #AB47BC, #8E24AA);
+    border: 2px solid #fff;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 7px 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+}
+
+#sudoku-board {
+    background: #fff;
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    border: 3px solid #9C27B0;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 1px;
+    width: min(340px, 95vw);
+    margin: 10px auto;
+    box-sizing: border-box;
+}
+
+.sudoku-cell {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #F3E5F5, #E1BEE7);
+    border: 1px solid #BA68C8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.9rem, 3vw, 1.3rem);
+    font-weight: bold;
+    color: #6A1B9A;
+    cursor: pointer;
+}
+
+.sudoku-cell.fixed {
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+    color: #fff;
+    cursor: default;
+}
+
+.sudoku-cell.selected {
+    background: linear-gradient(135deg, #FFD54F, #FFC107);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
+}
+
+/* 3x3 block borders */
+.sudoku-cell:nth-child(3n) {
+    border-right-width: 2px;
+    border-right-color: #9C27B0;
+}
+
+.sudoku-cell:nth-child(n+19):nth-child(-n+27),
+.sudoku-cell:nth-child(n+46):nth-child(-n+54) {
+    border-bottom-width: 2px;
+    border-bottom-color: #9C27B0;
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Forca</title>
+    <link rel="stylesheet" href="../shared/css/style.css">
+    <link rel="stylesheet" href="../shared/css/settings-modal.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="hangman-screen" class="game-screen">
+            <div id="hangman-controls">
+                <a href="../index.html" id="back-to-hub-hm" class="game-button icon-btn"
+                    style="text-decoration:none; display:flex; align-items:center; justify-content:center;">←</a>
+                <button id="hm-config-btn" class="game-button icon-btn">☰</button>
+                <button id="new-hangman" class="game-button">Nova</button>
+            </div>
+            <div id="hangman-game-area">
+                <div id="hm-canvas-container"><canvas id="hangman-canvas"></canvas></div>
+                <div id="hm-word"></div>
+                <div id="hm-stats"></div>
+                <div id="hm-hint"></div>
+                <div id="hm-message"></div>
+                <div id="hm-keyboard"></div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" style="display:none;" aria-hidden="true">
+            <div class="settings-sheet">
+                <div style="display:flex;">
+                    <div class="settings-content" style="width:100%">
+                        <div class="cfg-tab" id="tab-hangman" style="display:block;">
+                            <h3>🪢 Configurações</h3>
+                            <label><span>Som</span><button id="cfg-enable-sound-btn" class="toggle-btn"
+                                    aria-pressed="true">🔊</button></label>
+                            <label><span>Confete</span><input type="checkbox" id="cfg-confetti" checked></label>
+                            <hr>
+                            <label><span>Dicas</span><input type="checkbox" id="cfg-show-hints" checked></label>
+                            <label><span>Erros</span><select id="cfg-hangman-max">
+                                    <option value="6" selected>6</option>
+                                    <option value="8">8</option>
+                                </select></label>
+                        </div>
+                        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+                            <button id="cfg-close" class="game-button">Fechar</button>
+                            <button id="cfg-save" class="game-button">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="../shared/js/core.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.SoundEngine) window.SoundEngine.init();
+            if (window.Settings) window.Settings.init();
+
+            if (window.HangmanGame) {
+                window.HangmanGame.start();
+            }
+
+            const btn = document.getElementById('hm-config-btn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (window.Settings) window.Settings.openModal();
+                });
+            }
+
+            const closeBtn = document.getElementById('cfg-close');
+            const saveBtn = document.getElementById('cfg-save');
+            if (closeBtn) closeBtn.addEventListener('click', () => window.Settings.closeModal());
+            if (saveBtn) saveBtn.addEventListener('click', () => {
+                window.Settings.save();
+                window.Settings.closeModal();
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+
+</html>

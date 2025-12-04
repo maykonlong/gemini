@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048</title>
+    <link rel="stylesheet" href="../shared/css/style.css">
+    <link rel="stylesheet" href="../shared/css/settings-modal.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="game2048-screen" class="game-screen">
+            <div id="game2048-controls">
+                <a href="../index.html" id="back-to-hub-2048" class="game-button icon-btn"
+                    style="text-decoration:none; display:flex; align-items:center; justify-content:center;">←</a>
+                <button id="g2048-config-btn" class="game-button icon-btn">☰</button>
+                <button id="new-2048" class="game-button">Novo</button>
+            </div>
+            <div id="game2048-score">Pontos: <span id="2048-score">0</span></div>
+            <div id="game2048-container">
+                <div id="game2048-board"></div>
+                <div id="arrow-controls">
+                    <button id="arrow-up" class="arrow-btn">↑</button>
+                    <button id="arrow-left" class="arrow-btn">←</button>
+                    <button id="arrow-down" class="arrow-btn">↓</button>
+                    <button id="arrow-right" class="arrow-btn">→</button>
+                </div>
+            </div>
+            <p class="game-instructions">Use setas ou clique</p>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" style="display:none;" aria-hidden="true">
+            <div class="settings-sheet">
+                <div style="display:flex;">
+                    <div class="settings-content" style="width:100%">
+                        <div class="cfg-tab" id="tab-2048" style="display:block;">
+                            <h3>2️⃣ Configurações</h3>
+                            <label><span>Som</span><button id="cfg-enable-sound-btn" class="toggle-btn"
+                                    aria-pressed="true">🔊</button></label>
+                            <label><span>Confete</span><input type="checkbox" id="cfg-confetti" checked></label>
+                            <hr>
+                            <label><span>Tamanho</span><select id="cfg-2048-size">
+                                    <option value="4" selected>4x4</option>
+                                    <option value="5">5x5</option>
+                                </select></label>
+                        </div>
+                        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+                            <button id="cfg-close" class="game-button">Fechar</button>
+                            <button id="cfg-save" class="game-button">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="../shared/js/core.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.SoundEngine) window.SoundEngine.init();
+            if (window.Settings) window.Settings.init();
+
+            if (window.Game2048) {
+                window.Game2048.start();
+            }
+
+            const btn = document.getElementById('g2048-config-btn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (window.Settings) window.Settings.openModal();
+                });
+            }
+
+            const closeBtn = document.getElementById('cfg-close');
+            const saveBtn = document.getElementById('cfg-save');
+            if (closeBtn) closeBtn.addEventListener('click', () => window.Settings.closeModal());
+            if (saveBtn) saveBtn.addEventListener('click', () => {
+                window.Settings.save();
+                window.Settings.closeModal();
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+
+</html>

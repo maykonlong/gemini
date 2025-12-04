@@ -1,0 +1,713 @@
+:root {
+    --primary-color: #00CC99;
+    --secondary-color: #EB2D8C;
+    --background-color: #1a1a2e;
+    --card-color: #16213e;
+    --text-color: #e0e0e0;
+    --font-family: 'Arial', sans-serif;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#hub-screen, .game-screen {
+    width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1, h2 {
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+/* Hub Screen Styles */
+#game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.game-card {
+    background-color: var(--card-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+}
+
+.game-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 204, 153, 0.3);
+}
+
+.game-card h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.game-card p { font-size: 0.9em; color: #aaa; }
+
+/* Mobile-style memory controls: fixed bottom bar with pill controls */
+@media (max-width:900px) {
+    #memory-game-controls {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        bottom: 12px;
+        z-index: 1200;
+        background: linear-gradient(180deg, rgba(10,12,16,0.92), rgba(12,14,20,0.85));
+        border-radius: 14px;
+        padding: 10px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        backdrop-filter: blur(6px);
+    }
+    .game-controls { flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; }
+    .game-controls::-webkit-scrollbar { height:8px; }
+    .game-button, select {
+        border-radius: 999px;
+        padding: 12px 14px;
+        font-size: 1.02rem;
+        min-width: 56px;
+        flex: 0 0 auto;
+    }
+    #level-select, #theme-select, #card-size-select {
+        appearance: none;
+        -webkit-appearance: none;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        border: 1px solid rgba(255,255,255,0.04);
+        color: var(--text-color);
+        font-weight: 600;
+        text-align: center;
+    }
+    label[for="card-size-select"] { display:none; }
+    #card-size-preview { display:none; }
+    /* Make room for the fixed controls so board won't be covered */
+    #memory-game-board { margin-bottom: 110px; }
+}
+
+/* Mobile top status bar for moves/time (app-like) */
+@media (max-width:900px) {
+    #memory-game-stats {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        z-index: 1250;
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(180deg, rgba(16,18,22,0.95), rgba(10,12,16,0.90));
+        border-radius: 12px;
+        padding: 8px 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.04);
+        backdrop-filter: blur(6px);
+        font-weight:700;
+    }
+    #memory-game-stats .stat { display:flex; gap:8px; align-items:center; color:var(--text-color); }
+    #memory-game-stats .stat-icon { font-size:1.1rem; width:28px; text-align:center; }
+    #memory-game-stats .stat-label { font-size:0.95rem; color:#e7f4ef; }
+    /* theme display */
+    .theme-display { display:flex; align-items:center; gap:8px; min-width:120px; }
+    .theme-display .theme-emoji { font-size:1.4rem; width:36px; text-align:center; }
+    .theme-display .theme-name { font-size:0.95rem; color:#dff7ec; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+    /* Give board room at top so content isn't hidden under the fixed bar */
+    #memory-game-board { margin-top: 68px; }
+}
+
+/* Hide bottom restart button in mobile (we provide top restart) */
+@media (max-width:900px) {
+    #memory-game-controls #restart-memory-game { display: none !important; }
+    .top-restart {
+        background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        border-radius: 10px;
+        padding: 6px 10px;
+        font-size: 1.05rem;
+        border: 1px solid rgba(255,255,255,0.06);
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .top-restart:active { transform: translateY(1px); }
+}
+
+/* On larger screens keep the original flow */
+@media (min-width:901px) {
+    #memory-game-stats { position: static; display: block; margin-top: 12px; }
+    #memory-game-stats .stat { display:inline-block; margin-right: 10px; }
+}
+
+/* Hide full selects on small screens and show compact menu button */
+@media (max-width:900px) {
+    #level-select, #theme-select, #card-size-select { display: none !important; }
+    #mem-config-btn { display: inline-flex !important; align-items:center; justify-content:center; width:44px; height:44px; border-radius:999px; font-size:1.25rem; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); }
+    #mem-config-btn:active { transform: scale(0.98); }
+}
+
+/* On larger screens hide the compact menu button */
+@media (min-width:901px) {
+    #mem-config-btn { display: none !important; }
+}
+
+/* Mini-config visual styles (pills, theme grid) */
+.mini-section { margin: 8px 0; display:flex; flex-direction:column; gap:6px; }
+.mini-section-title { font-weight:700; color:var(--primary-color); font-size:0.95rem; text-align:left; }
+.mini-level-pills, .mini-card-size-pills { display:flex; gap:8px; flex-wrap:wrap; }
+.pill { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:600; }
+.pill.active { border-color: var(--primary-color); box-shadow: 0 6px 18px rgba(0,204,153,0.08); transform: translateY(-2px); }
+.mini-theme-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; }
+.theme-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:8px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); cursor:pointer; }
+.theme-btn .theme-emoji { font-size:1.6rem; }
+.theme-btn .theme-label { font-size:0.75rem; color:#bbb; }
+.theme-btn.active { border-color: var(--primary-color); box-shadow: 0 8px 24px rgba(0,204,153,0.06); transform: translateY(-4px); }
+
+@media (max-width:420px) {
+    .mini-theme-grid { grid-template-columns: repeat(3,1fr); }
+}
+
+/* Mini-config popup container styling */
+#mini-config-popup {
+    position: fixed;
+    left: 50%;
+    top: 120px;
+    transform: translateX(-50%);
+    z-index: 1400;
+    background: linear-gradient(180deg, rgba(12,14,18,0.96), rgba(8,10,12,0.96));
+    border: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-color);
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(0,0,0,0.6);
+    max-width: 92vw;
+    width: auto;
+    min-width: 260px;
+    overflow: hidden;
+}
+#mini-config-popup .mini-body {
+    max-height: 58vh;
+    overflow: auto;
+    padding: 8px 12px;
+}
+#mini-config-popup .mini-header, #mini-config-popup .mini-actions { background: transparent; }
+#mini-config-popup .theme-emoji { display:block; }
+
+/* Force mobile/app-like controls when `.compact-controls` is present on body */
+.compact-controls #memory-game-controls {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: 12px;
+    z-index: 1200;
+    background: linear-gradient(180deg, rgba(10,12,16,0.92), rgba(12,14,20,0.85));
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(6px);
+}
+.compact-controls .game-controls { flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; }
+.compact-controls .game-controls::-webkit-scrollbar { height:8px; }
+.compact-controls .game-button, .compact-controls select {
+    border-radius: 999px;
+    padding: 12px 14px;
+    font-size: 1.02rem;
+    min-width: 56px;
+    flex: 0 0 auto;
+}
+.compact-controls #level-select, .compact-controls #theme-select, .compact-controls #card-size-select { display: none !important; }
+.compact-controls label[for="card-size-select"] { display:none; }
+.compact-controls #card-size-preview { display:none; }
+.compact-controls #memory-game-board { margin-bottom: 110px; }
+
+.compact-controls #memory-game-stats {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 1250;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(16,18,22,0.95), rgba(10,12,16,0.90));
+    border-radius: 12px;
+    padding: 8px 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(6px);
+    font-weight:700;
+}
+.compact-controls #memory-game-stats .stat { display:flex; gap:8px; align-items:center; color:var(--text-color); }
+.compact-controls #memory-game-stats .stat-icon { font-size:1.1rem; width:28px; text-align:center; }
+.compact-controls #memory-game-stats .stat-label { font-size:0.95rem; color:#e7f4ef; }
+.compact-controls .theme-display { display:flex; align-items:center; gap:8px; min-width:120px; }
+.compact-controls .theme-display .theme-emoji { font-size:1.4rem; width:36px; text-align:center; }
+.compact-controls .theme-display .theme-name { font-size:0.95rem; color:#dff7ec; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+.compact-controls #memory-game-board { margin-top: 68px; }
+
+.compact-controls #memory-game-controls #restart-memory-game { display: none !important; }
+.compact-controls .top-restart { display: inline-flex; }
+.compact-controls #mem-config-btn { display: inline-flex !important; align-items:center; justify-content:center; width:44px; height:44px; border-radius:999px; font-size:1.25rem; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); }
+.compact-controls #mem-config-btn:active { transform: scale(0.98); }
+
+.game-card.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+ .game-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Memory Game Styles */
+#memory-game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 720px;
+    margin: 20px auto;
+}
+
+.memory-card {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    perspective: 1000px;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.memory-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.45s;
+    transform-style: preserve-3d;
+    border-radius: 10px;
+}
+
+.memory-card.is-flipped .memory-card-inner {
+    transform: rotateY(180deg);
+}
+
+.memory-card-front, .memory-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Font size scales with computed card size (set via JS as --card-size) */
+    font-size: calc(var(--card-size, 96px) * 0.28);
+}
+
+.memory-card-front {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+.memory-card-back {
+    background-color: var(--card-color);
+    border: 1px solid var(--primary-color);
+    transform: rotateY(180deg);
+    color: var(--text-color);
+}
+
+.memory-card.matched {
+    pointer-events: none;
+}
+.memory-card.matched .memory-card-inner {
+    transform: rotateY(180deg) scale(0.95);
+    opacity: 1;
+}
+@keyframes matched-pulse {
+    0% { transform: rotateY(180deg) scale(0.9); box-shadow: 0 0 0 rgba(0,0,0,0); }
+    40% { transform: rotateY(180deg) scale(1.06); box-shadow: 0 12px 24px rgba(0,204,153,0.12); }
+    100% { transform: rotateY(180deg) scale(0.98); box-shadow: 0 6px 12px rgba(0,204,153,0.08); }
+}
+.memory-card.matched .memory-card-inner {
+    animation: matched-pulse 560ms cubic-bezier(.2,.8,.2,1);
+    border: 1px solid rgba(255,255,255,0.03);
+    background-image: linear-gradient(45deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+}
+
+#memory-game-controls {
+    margin-bottom: 20px;
+}
+
+.game-button, select {
+    background-color: var(--card-color);
+    border: 2px solid var(--primary-color);
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 0 10px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.game-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; justify-content:flex-start; }
+.game-controls .control-group { display:flex; align-items:center; gap:8px; margin-right:8px; }
+.per-game-settings-btn { background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;cursor:pointer;font-size:1em }
+.per-game-settings-btn:hover { border-color:var(--primary-color); color:var(--primary-color); }
+.per-game-settings-btn { min-width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; padding:8px; border-radius:10px; }
+.per-game-settings-btn:focus-visible { outline: 3px solid rgba(0,204,153,0.18); outline-offset: 3px; }
+.per-game-settings-btn:hover { transform: translateY(-2px); }
+
+/* New control groups layout */
+.controls-left, .controls-center, .controls-right { display:flex; align-items:center; gap:8px; }
+.controls-left { flex: 0 0 auto; }
+
+/* WordSearch controls: keep items inline and centered, avoid stacking */
+#wordsearch-screen .controls-center { flex-direction: row; align-items: center; gap:8px; min-width:0; }
+#wordsearch-screen .controls-center > * { display:inline-flex; align-items:center; gap:8px; }
+#wordsearch-screen .controls-right { justify-content: flex-end; }
+#wordsearch-screen .controls-right .game-button { margin-left:6px; }
+
+/* Prevent wrapping inside the WordSearch toolbar so items don't stack vertically */
+#wordsearch-screen > .game-controls { flex-wrap: nowrap; align-items: center; }
+
+/* Visual style to match Memory's toolbar: pill controls, subtle background */
+#wordsearch-screen > .game-controls {
+    background: linear-gradient(180deg, rgba(12,14,18,0.96), rgba(8,10,12,0.96));
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+#wordsearch-screen .controls-left { flex:0 0 auto; }
+#wordsearch-screen .controls-center { flex:1 1 auto; display:flex; flex-direction:column; align-items:center; }
+#wordsearch-screen .controls-right { flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+
+.theme-display { display:flex; align-items:center; gap:8px; }
+.theme-display .theme-emoji { font-size:1.3rem; width:36px; text-align:center; }
+.theme-display .theme-name { font-weight:700; color:var(--primary-color); }
+
+.per-game-settings-btn { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); padding:8px 10px; border-radius:999px; cursor:pointer; }
+.per-game-settings-btn:hover { border-color: var(--primary-color); color:var(--primary-color); }
+
+/* Make selects look like pills and enforce dark theme for WordSearch selects/options */
+#wordsearch-screen select { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color) !important; padding:8px 10px; border-radius:999px; }
+#wordsearch-screen select, #wordsearch-screen .control-group select { background-color: var(--card-color) !important; color: var(--text-color) !important; border-color: rgba(255,255,255,0.04) !important; }
+#wordsearch-screen select option { background-color: var(--card-color) !important; color: var(--text-color) !important; }
+
+/* Smaller title to fit the pill bar */
+#wordsearch-screen h2 { font-size:1.1rem; color:var(--text-color); margin:0; }
+
+/* Mobile / app-like layout for WordSearch */
+@media (max-width:900px) {
+    #wordsearch-screen > .game-controls {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        bottom: 12px;
+        z-index: 1400;
+        background: linear-gradient(180deg, rgba(10,12,16,0.96), rgba(8,10,12,0.92));
+        border-radius: 14px;
+        padding: 8px 10px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.04);
+        backdrop-filter: blur(6px);
+    }
+    /* keep the center controls visible on mobile but compact */
+    #wordsearch-screen .controls-center { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; max-width:48%; }
+    #wordsearch-screen .controls-left { flex: 0 0 auto; }
+    #wordsearch-screen .controls-right { flex: 0 0 auto; display:flex; justify-content:flex-end; gap:8px; align-items:center; }
+    /* make selects compact and visible (avoid disappearing menus) */
+    #wordsearch-screen select { display:inline-flex !important; padding:6px 8px; font-size:0.92rem; min-width:56px; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #wordsearch-screen #import-ws-list { display:inline-flex; }
+    /* show toggle as a circular icon button but allow text when space permits */
+    #ws-toggle-words { display:inline-flex !important; align-items:center; justify-content:center; height:44px; border-radius:999px; padding:6px 10px; }
+    /* make primary new button a pill */
+    #new-ws { padding:10px 14px; border-radius:999px; font-weight:700; }
+    /* give board room so bottom bar doesn't cover it */
+    #ws-board-container { margin-bottom: 160px; }
+     /* when words are revealed on mobile, show them as a floating panel above the bottom bar
+         Use horizontal scroller for the pills to avoid wrapping/clipping; on very small screens
+         the FAB opens a full bottom-sheet (sheet) instead. */
+     .ws-words.revealed {
+          position: fixed;
+          left: 10px;
+          right: 10px;
+          bottom: 76px; /* above bottom bar */
+          z-index: 1450;
+          background: linear-gradient(180deg, rgba(12,14,18,0.98), rgba(8,10,12,0.96));
+          border: 1px solid rgba(255,255,255,0.04);
+          padding: 6px 6px;
+          border-radius: 12px;
+          max-height: 40vh;
+          overflow: visible; /* inner scroller will handle overflow */
+          box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+     }
+     /* internal row becomes the scroll container (prevents outer clipping and allows padding)
+         we'll render words inside a `.ws-row` element to enable horizontal scrolling */
+     .ws-words.revealed .ws-row { display:flex; gap:8px; align-items:center; padding:6px 8px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+     .ws-words.revealed .ws-word { white-space:nowrap; display:inline-flex; align-items:center; padding:6px 10px; margin:0; min-width: auto; }
+     .ws-words.revealed .ws-word.obscured { filter:none; opacity:1; }
+     /* show a subtle right gradient when scrollable */
+     .ws-words.revealed.scrollable { position: relative; }
+     .ws-words.revealed.scrollable::after { content: ''; position: absolute; right: 8px; top: 0; bottom: 0; width: 40px; pointer-events: none; background: linear-gradient(90deg, rgba(8,10,12,0), rgba(8,10,12,0.95)); border-radius: 0 12px 12px 0; }
+
+     /* Full bottom-sheet for very small widths: occupies bottom area with vertical scroll
+         and presents words as compact full-width rows to avoid lateral clipping. */
+     .ws-words.sheet {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 1480;
+          height: 52vh;
+          max-height: 72vh;
+          background: linear-gradient(180deg, rgba(12,14,18,0.99), rgba(6,8,10,0.98));
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
+          padding: 10px 12px 18px 12px;
+          box-shadow: 0 -12px 40px rgba(0,0,0,0.6);
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+     }
+     .ws-words.sheet .sheet-handle{ width:36px; height:4px; background: rgba(255,255,255,0.06); border-radius:3px; margin:6px auto 8px auto; }
+     .ws-words.sheet .sheet-header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px; }
+     .ws-words.sheet .sheet-title{ font-weight:700; color:var(--primary-color); }
+     .ws-words.sheet .ws-word{ display:block; width:100%; padding:10px 12px; margin:0; border-radius:10px; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.98rem; }
+     .ws-words.sheet .ws-word.obscured{ filter:none; opacity:0.7; }
+    /* When sheet is open, push board up so it's not covered */
+    body.ws-sheet-open #ws-board-container { margin-bottom: calc(160px + 52vh); }
+}
+
+@media (max-width:900px) {
+    /* mini menu icon visible on mobile */
+    .ws-mini-btn { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:999px; font-size:1.1rem; margin-left:8px; }
+    /* floating panel for compact menu */
+    #ws-mini-panel { display:none; position: fixed; left: 10px; right: 10px; bottom: 76px; z-index:1460; background: linear-gradient(180deg, rgba(12,14,18,0.98), rgba(8,10,12,0.96)); border:1px solid rgba(255,255,255,0.04); padding:10px; border-radius:12px; box-shadow: 0 12px 30px rgba(0,0,0,0.6); max-height: 48vh; overflow:auto; }
+    #ws-mini-panel.open { display:block; }
+    #ws-mini-panel .panel-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+}
+
+@media (min-width:901px) {
+    .ws-mini-btn { display:none !important; }
+}
+
+/* WordSearch styles */
+.ws-board{ display:grid; gap:6px; place-items:stretch; grid-auto-rows:1fr; }
+.ws-cell{ display:flex; align-items:center; justify-content:center; user-select:none; padding:6px; background:var(--card-color); border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.4); font-weight:700; cursor:pointer; -webkit-tap-highlight-color: transparent; }
+.ws-cell.selected{ background:#f39c12; color:#fff; }
+.ws-cell{ font-size: clamp(12px, 2.6vw, 20px); height: 2.6rem; width: 2.6rem; }
+.ws-words{ display:flex; flex-wrap:wrap; gap:8px; padding:6px; max-height:240px; overflow:auto; margin-top:8px; }
+.ws-words .ws-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.ws-words.hidden{ display:none !important; }
+.ws-word{ padding:6px 8px; background:rgba(255,255,255,0.02); border-radius:6px; font-weight:600; color:var(--text-color); }
+.ws-word.found{ text-decoration:line-through; opacity:0.55; }
+.ws-overlay polyline{ stroke:#ff5252; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; fill:none; pointer-events:none; }
+
+/* Floating FAB for opening the words panel (mobile app feel) */
+.ws-words-fab{
+    position: fixed;
+    right: 14px;
+    bottom: 84px; /* above bottom controls */
+    z-index: 1480;
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(6px);
+}
+.ws-words.fab-panel{
+    position: fixed;
+    right: 14px;
+    bottom: 146px; /* float above the FAB */
+    z-index: 1475;
+    width: min(92vw, 340px);
+    max-height: 48vh;
+    padding: 10px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(12,14,18,0.98), rgba(8,10,12,0.96));
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+    overflow: auto;
+    transition: transform 220ms ease, opacity 200ms ease;
+    transform-origin: bottom right;
+}
+.ws-words.fab-panel.hidden { display: none !important; }
+.ws-words.fab-panel.enter { transform: translateY(8px); opacity: 0; }
+.ws-words.fab-panel.open { transform: translateY(0); opacity: 1; }
+
+/* On very small screens ensure FAB and panel don't conflict with bottom bar */
+@media (max-width:420px){
+    .ws-words-fab{ right: 10px; bottom: 84px; width:48px; height:48px; }
+    .ws-words.fab-panel{ right:10px; bottom: 136px; width: calc(100% - 20px); }
+}
+
+.fab-badge{ position: absolute; top: 6px; right: 8px; min-width: 18px; height: 18px; line-height: 18px; padding: 0 6px; border-radius: 999px; font-size: 0.72rem; background: var(--primary-color); color: #012; font-weight:700; display: none; align-items:center; justify-content:center; text-align:center; pointer-events:none; }
+
+/* Obscure words until user reveals them or finds them */
+.ws-word.obscured {
+    filter: blur(6px);
+    opacity: 0.28;
+    transition: filter 220ms ease, opacity 220ms ease;
+}
+.ws-words.revealed .ws-word.obscured {
+    filter: none;
+    opacity: 1;
+}
+.ws-word.found {
+    filter: none !important;
+    opacity: 0.7 !important;
+    text-decoration: line-through !important;
+}
+
+.controls-center { flex: 1 1 auto; justify-content: center; }
+.controls-right { flex: 0 0 auto; }
+.icon-btn { padding:8px 10px; border-radius:10px; font-size:1.04rem; background-color: transparent; border:1px solid rgba(255,255,255,0.04); }
+
+/* Inline game icon used in compact buttons */
+.game-icon-inline { font-size:1.2rem; display:inline-block; width:1.4em; text-align:center; vertical-align:middle; }
+.gear { font-size:1rem; opacity:0.95; margin-left:6px; vertical-align:middle; }
+
+/* Screen-reader only text */
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+
+.action-btn { padding:10px 14px; border-radius:10px; }
+.control-group select { appearance:none; -webkit-appearance:none; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:var(--text-color); padding:8px 12px; border-radius:999px; font-weight:600; }
+.control-group .card-preview { margin-left:8px; color:#aaa; font-size:0.9em; }
+.sr-only { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+
+.game-button:hover, select:hover {
+    border-color: var(--secondary-color);
+}
+
+#memory-game-stats {
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+@media (max-width: 640px) {
+    /* for very small screens, slightly reduce text if CSS variable not applied */
+    .memory-card-back { font-size: calc(var(--card-size, 64px) * 0.28); }
+    #memory-game-board { gap: 5px; }
+}
+
+/* Styles for large screens: increase card prominence */
+@media (min-width: 1100px) {
+    #memory-game-board { gap: 12px; }
+    .memory-card-inner {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        border-radius: 12px;
+    }
+    .memory-card-back, .memory-card-front {
+        /* a bit larger text on large screens */
+        font-size: calc(var(--card-size, 140px) * 0.34);
+    }
+    .memory-card.matched .memory-card-inner {
+        box-shadow: 0 14px 36px rgba(0,204,153,0.08);
+    }
+}
+
+/* Extra-large screens — make cards even bigger and reduce gaps if needed */
+@media (min-width: 1600px) {
+    #memory-game-board { gap: 14px; }
+    .memory-card-back, .memory-card-front { font-size: calc(var(--card-size, 180px) * 0.36); }
+    .memory-card-inner { border-radius: 14px; }
+}
+@media (max-width: 900px) { #memory-game-board { grid-template-columns: repeat(3, 1fr); gap: 8px; } }
+@media (max-width: 600px) { #memory-game-board { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+
+#confetti-canvas { position: fixed; pointer-events: none; left: 0; top: 0; width: 100%; height: 100%; z-index: 9999; }
+.ws-cell { touch-action: none; user-select: none; -webkit-user-select: none; -ms-user-select: none; cursor: pointer; background: rgba(255,255,255,0.02); color: var(--text-color); border-radius: 6px; transition: transform 0.08s, background 0.12s; }
+.ws-cell.selected { background: linear-gradient(90deg, rgba(0,204,153,0.12), rgba(0,150,136,0.08)); transform: scale(1.04); box-shadow: 0 6px 12px rgba(0,204,153,0.08); }
+.ws-cell.found { background: linear-gradient(90deg, rgba(255,200,60,0.12), rgba(255,160,60,0.06)); color: #fff; font-weight: 700; pointer-events: none; transform: scale(1.02); opacity: 1; }
+
+#settings-modal > div { align-items: stretch; max-height:90vh; }
+aside { box-sizing: border-box; }
+.cfg-tab-btn { width: 100%; text-align: left; padding: 10px 8px; border-radius:6px; transition: background 160ms, color 160ms; }
+.cfg-tab-btn.active, .cfg-tab-btn:hover { background: linear-gradient(90deg, rgba(159,187,136,0.08), rgba(0,0,0,0.02)); color: #9fb !important; }
+.cfg-tab { max-height: calc(70vh); overflow:auto; padding-right:6px; display:flex; flex-direction:column; gap:8px; }
+.settings-content { min-height:200px; }
+.cfg-tab label { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px; min-width:0; }
+.cfg-tab label > select, .cfg-tab label > input[type="number"], .cfg-tab label > input[type="text"] { max-width:260px; width:48%; }
+.cfg-tab label > input[type="checkbox"] { margin-right:8px; }
+.cfg-tab label { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+.cfg-tab label input[type="checkbox"] { margin-right:8px; }
+#cfg-pools-list { display:flex; flex-wrap:wrap; gap:8px; }
+#cfg-pools-list label { display:inline-flex; justify-content:flex-start; align-items:center; gap:2px; min-width:auto; padding:4px 6px; cursor:pointer; }
+#cfg-pools-list label input[type="checkbox"] { margin:0; }
+
+@media (max-width:760px) {
+    #settings-modal > div { flex-direction:column; max-height:100vh; padding-bottom:64px; }
+    aside { width:100%; display:flex; overflow:auto; gap:6px; }
+    .cfg-tab-btn { flex:1 0 auto; white-space:nowrap; }
+    .cfg-tab { max-height:40vh; }
+    .cfg-tab label { flex-direction:column; align-items:flex-start; }
+    .cfg-tab label > select, .cfg-tab label > input[type="number"], .cfg-tab label > input[type="text"] { width:100%; max-width:100%; }
+    .settings-content { padding-top:56px; padding-bottom:96px; }
+    .settings-header-mobile { display:flex; position:fixed; left:0; right:0; top:0; z-index:1100; padding:12px 16px; background:linear-gradient(180deg,#0f1720,rgba(15,23,32,0.9)); box-shadow:0 6px 18px rgba(0,0,0,0.4); }
+    .settings-footer-mobile { display:block; z-index:1101; }
+    .game-button { padding:12px 14px; font-size:1.02em; }
+    .cfg-tab label { gap:10px; }
+    #cfg-pools-list label { padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.02); }
+    #settings-modal.sheet-mode { align-items:flex-end; }
+    #settings-modal.sheet-mode .settings-sheet { width:100%; max-width:100%; margin:0; border-radius:12px 12px 0 0; transform:translateY(100%); transition:transform 320ms cubic-bezier(.2,.9,.3,1); position:relative; }
+    #settings-modal.sheet-mode.sheet-open .settings-sheet { transform:translateY(0); }
+    .compact-controls #cfg-pools-list label { gap:0; padding-left:6px; }
+    .compact-controls .game-button { padding:16px 10px; }
+    .game-screen .game-button { padding:14px 18px; font-size:1.06em; border-radius:10px; }
+}

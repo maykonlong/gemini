@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caça-Palavras</title>
+    <link rel="stylesheet" href="../shared/css/style.css">
+    <link rel="stylesheet" href="../shared/css/settings-modal.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="wordsearch-screen" class="game-screen">
+            <div id="ws-controls">
+                <a href="../index.html" id="back-to-hub-ws" class="game-button icon-btn"
+                    style="text-decoration:none; display:flex; align-items:center; justify-content:center;">←</a>
+                <button id="ws-config-btn" class="game-button icon-btn">☰</button>
+                <select id="ws-theme-select">
+                    <option value="animals">Animais</option>
+                </select>
+                <select id="ws-level-select"></select>
+                <button id="new-ws" class="game-button">Novo</button>
+            </div>
+            <div class="wordsearch-container">
+                <div style="position:relative;display:inline-block;">
+                    <div id="ws-board"></div>
+                    <svg id="ws-overlay"></svg>
+                </div>
+                <div id="ws-words"></div>
+                <div id="ws-hint"></div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" style="display:none;" aria-hidden="true">
+            <div class="settings-sheet">
+                <div style="display:flex;">
+                    <div class="settings-content" style="width:100%">
+                        <div class="cfg-tab" id="tab-ws" style="display:block;">
+                            <h3>🔎 Configurações</h3>
+                            <label><span>Som</span><button id="cfg-enable-sound-btn" class="toggle-btn"
+                                    aria-pressed="true">🔊</button></label>
+                            <label><span>Confete</span><input type="checkbox" id="cfg-confetti" checked></label>
+                            <hr>
+                            <label><span>Dicas</span><input type="checkbox" id="cfg-show-defs" checked></label>
+                        </div>
+                        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+                            <button id="cfg-close" class="game-button">Fechar</button>
+                            <button id="cfg-save" class="game-button">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="../shared/js/core.js"></script>
+    <script src="js/pools.js"></script>
+    <script src="js/hints.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.SoundEngine) window.SoundEngine.init();
+            if (window.Settings) window.Settings.init();
+
+            if (window.WordSearch) {
+                window.WordSearch.start();
+            }
+
+            const btn = document.getElementById('ws-config-btn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (window.Settings) window.Settings.openModal();
+                });
+            }
+
+            const closeBtn = document.getElementById('cfg-close');
+            const saveBtn = document.getElementById('cfg-save');
+            if (closeBtn) closeBtn.addEventListener('click', () => window.Settings.closeModal());
+            if (saveBtn) saveBtn.addEventListener('click', () => {
+                window.Settings.save();
+                window.Settings.closeModal();
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+
+</html>

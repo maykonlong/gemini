@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jogo da Memória</title>
+    <link rel="stylesheet" href="../shared/css/style.css">
+    <link rel="stylesheet" href="../shared/css/settings-modal.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+
+<body class="compact-controls">
+    <div class="container">
+        <div id="memory-game-screen" class="game-screen">
+            <div id="memory-game-controls" class="game-controls">
+                <div class="controls-left">
+                    <a href="../index.html" id="back-to-hub" class="game-button icon-btn"
+                        style="text-decoration:none; display:flex; align-items:center; justify-content:center;">←</a>
+                    <button id="mem-config-btn" class="game-button icon-btn">☰</button>
+                </div>
+                <div class="controls-center"><select id="theme-select"></select></div>
+                <div class="controls-right">
+                    <select id="level-select">
+                        <option value="6">Fácil</option>
+                        <option value="8" selected>Médio</option>
+                        <option value="12">Difícil</option>
+                        <option value="18">Muito Difícil</option>
+                    </select>
+                    <button id="restart-memory-game" class="game-button">🔄</button>
+                </div>
+            </div>
+            <div id="memory-game-stats"><span>🎯 <span id="moves">0</span></span><span>⏱️ <span
+                        id="time">0</span>s</span></div>
+            <div id="memory-game-board"></div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" style="display:none;" aria-hidden="true">
+            <div class="settings-sheet">
+                <div style="display:flex;">
+                    <div class="settings-content" style="width:100%">
+                        <div class="cfg-tab" id="tab-memory" style="display:block;">
+                            <h3>🧠 Configurações</h3>
+                            <label><span>Som</span><button id="cfg-enable-sound-btn" class="toggle-btn"
+                                    aria-pressed="true">🔊</button></label>
+                            <label><span>Confete</span><input type="checkbox" id="cfg-confetti" checked></label>
+                            <hr>
+                            <label><span>Nível</span><select id="cfg-memory-level">
+                                    <option value="6">Fácil</option>
+                                    <option value="8" selected>Médio</option>
+                                    <option value="12">Difícil</option>
+                                    <option value="18">Muito Difícil</option>
+                                </select></label>
+                            <label><span>Tema</span><select id="cfg-memory-theme">
+                                    <option value="animals">Animais</option>
+                                    <option value="food">Comida</option>
+                                    <option value="emoji">Emoji</option>
+                                    <option value="flags">Símbolos</option>
+                                </select></label>
+                        </div>
+                        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+                            <button id="cfg-close" class="game-button">Fechar</button>
+                            <button id="cfg-save" class="game-button">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="../shared/js/core.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Core
+            if (window.SoundEngine) window.SoundEngine.init();
+            if (window.Settings) {
+                window.Settings.init();
+                // Apply settings specifically for memory if needed, or generic
+            }
+
+            // Initialize Game
+            if (window.MemoryGame) {
+                window.MemoryGame.start();
+            }
+
+            // Settings Button Logic
+            const memBtn = document.getElementById('mem-config-btn');
+            if (memBtn) {
+                memBtn.addEventListener('click', () => {
+                    if (window.Settings) {
+                        window.Settings.openModal();
+                        // Ensure memory tab is shown (simplified modal here)
+                    }
+                });
+            }
+
+            // Close Settings
+            const closeBtn = document.getElementById('cfg-close');
+            const saveBtn = document.getElementById('cfg-save');
+            if (closeBtn) closeBtn.addEventListener('click', () => window.Settings.closeModal());
+            if (saveBtn) saveBtn.addEventListener('click', () => {
+                window.Settings.save();
+                window.Settings.closeModal();
+                window.location.reload(); // Reload to apply changes easily
+            });
+        });
+    </script>
+</body>
+
+</html>

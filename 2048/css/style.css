@@ -1,0 +1,261 @@
+/* 2️⃣ 2048 - APP STYLE */
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #faf8ef;
+    color: #776e65;
+    overflow: hidden;
+    /* Prevent scrolling */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#game2048-screen {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Header Controls */
+#game2048-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.game-button {
+    background: #8f7a66;
+    border-radius: 6px;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.game-button:hover {
+    background: #9f8b77;
+}
+
+.icon-btn {
+    padding: 10px;
+    font-size: 1.2rem;
+}
+
+/* Score Board */
+#game2048-score {
+    background: #bbada0;
+    padding: 10px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 6px;
+    color: white;
+    text-align: center;
+    min-width: 100px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Game Board */
+#game2048-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#game2048-board {
+    background: #bbada0;
+    border-radius: 6px;
+    padding: 10px;
+    display: grid;
+    gap: 10px;
+    width: 100%;
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    touch-action: none;
+    /* Important for swipe */
+}
+
+.tile-2048 {
+    background: #cdc1b4;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #776e65;
+    transition: transform 0.1s ease-in-out, background 0.1s;
+    user-select: none;
+}
+
+/* Tile Colors */
+.tile-2048-2 {
+    background: #eee4da;
+}
+
+.tile-2048-4 {
+    background: #ede0c8;
+}
+
+.tile-2048-8 {
+    background: #f2b179;
+    color: #f9f6f2;
+}
+
+.tile-2048-16 {
+    background: #f59563;
+    color: #f9f6f2;
+}
+
+.tile-2048-32 {
+    background: #f67c5f;
+    color: #f9f6f2;
+}
+
+.tile-2048-64 {
+    background: #f65e3b;
+    color: #f9f6f2;
+}
+
+.tile-2048-128 {
+    background: #edcf72;
+    color: #f9f6f2;
+    font-size: 1.8rem;
+}
+
+.tile-2048-256 {
+    background: #edcc61;
+    color: #f9f6f2;
+    font-size: 1.8rem;
+}
+
+.tile-2048-512 {
+    background: #edc850;
+    color: #f9f6f2;
+    font-size: 1.8rem;
+}
+
+.tile-2048-1024 {
+    background: #edc53f;
+    color: #f9f6f2;
+    font-size: 1.5rem;
+}
+
+.tile-2048-2048 {
+    background: #edc22e;
+    color: #f9f6f2;
+    font-size: 1.5rem;
+}
+
+/* Arrow Controls (Mobile) */
+#arrow-controls {
+    display: none;
+    /* Hidden by default on desktop */
+    grid-template-areas:
+        ". up ."
+        "left down right";
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.arrow-btn {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid #bbada0;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    color: #776e65;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.arrow-btn:active {
+    background: #eee4da;
+    transform: scale(0.95);
+}
+
+#arrow-up {
+    grid-area: up;
+}
+
+#arrow-left {
+    grid-area: left;
+}
+
+#arrow-down {
+    grid-area: down;
+}
+
+#arrow-right {
+    grid-area: right;
+}
+
+.game-instructions {
+    margin-top: 15px;
+    color: #776e65;
+    font-size: 0.9rem;
+}
+
+/* MOBILE OPTIMIZATIONS */
+@media (max-width: 768px) {
+    #game2048-board {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .tile-2048 {
+        font-size: 1.5rem;
+        border-radius: 4px;
+    }
+
+    #arrow-controls {
+        display: grid;
+        /* Show on mobile */
+    }
+
+    .game-instructions {
+        display: none;
+        /* Hide text instructions on mobile to save space */
+    }
+}
+
+@media (max-width: 400px) {
+    #game2048-board {
+        gap: 5px;
+        padding: 5px;
+    }
+
+    .tile-2048 {
+        font-size: 1.2rem;
+    }
+
+    .arrow-btn {
+        width: 50px;
+        height: 50px;
+    }
+}
